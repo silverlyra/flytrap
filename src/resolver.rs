@@ -11,6 +11,9 @@ use hickory_resolver::{
 
 use crate::{error::Error, placement::private_address, AppResolver, Location, Region};
 
+/// Query the Fly.io [internal DNS][] records.
+///
+/// [internal DNS]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
 #[derive(Clone)]
 pub struct Resolver(pub(crate) TokioAsyncResolver);
 
@@ -70,6 +73,7 @@ impl Resolver {
     /// Create a [`Resolver`] which will send DNS queries to the nameservers
     /// configured in the host operating system (i.e., in `/etc/resolv.conf`).
     #[cfg(feature = "system-resolver")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "system-resolver")))]
     pub fn system() -> Result<Self, Error> {
         let resolver = TokioAsyncResolver::tokio_from_system_conf().map_err(Error::from)?;
         Ok(Self(resolver))
@@ -92,6 +96,7 @@ impl Resolver {
         }
     }
 
+    /// Find all apps in the current Fly.io organization.
     pub async fn apps(&self) -> Result<Vec<String>, Error> {
         Ok(self
             .txt("_apps")
@@ -102,6 +107,8 @@ impl Resolver {
             .collect())
     }
 
+    /// Find all running instances in the current Fly.io organization, across
+    /// all apps.
     pub async fn instances(&self) -> Result<Vec<Instance>, Error> {
         self.txt("_instances")
             .await?
@@ -174,6 +181,29 @@ pub(crate) async fn lookup_txt(
     Ok(value)
 }
 
+/// A Fly.io [machine][] with an ID and [region][Region].
+///
+/// `Node` represents a result returned from querying the [`vms.<app>.internal`][dns]
+/// TXT record, as [`AppResolver::nodes`] does.
+///
+/// [machine]: https://fly.io/docs/machines/
+/// [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
+///
+/// ```
+/// use flytrap::{Node, Region};
+///
+/// let result = "148e21dad76789 sea,4d89699c030518 ams,6e82de14c35038 sin";
+/// let nodes: Vec<Node> = result.split(',').filter_map(|n| n.parse().ok()).collect();
+///
+/// assert_eq!(
+///     &nodes,
+///     &[
+///         Node::new(Region::Seattle, "148e21dad76789"),
+///         Node::new(Region::Amsterdam, "4d89699c030518"),
+///         Node::new(Region::Singapore, "6e82de14c35038")
+///     ]
+/// );
+/// ```
 #[derive(PartialOrd, Ord, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Node {
@@ -199,10 +229,7 @@ impl Node {
 
     /// Return this node’s [`Region`], if its region code was recognized.
     pub const fn region(&self) -> Option<Region> {
-        match self.location {
-            Location::Region(region) => Some(region),
-            Location::Unknown(_) => None,
-        }
+        self.location.region()
     }
 }
 
@@ -235,6 +262,9 @@ impl std::hash::Hash for Node {
     }
 }
 
+/// A fully-resolved [`Node`] whose private IP address is known.
+///
+/// Returned from [`AppResolver::peers`][crate::AppResolver::peers].
 #[derive(PartialOrd, Ord, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Peer {
@@ -417,7 +447,7 @@ pub fn dns_server_address(local: impl Into<Ipv6Addr>, hosted: bool) -> Ipv6Addr 
 mod test {
     use std::net::Ipv6Addr;
 
-    use crate::dns_server_address;
+    use super::{dns_server_address, Node};
 
     #[test]
     fn test_dns_server_address() {
@@ -427,5 +457,21 @@ mod test {
 
         assert_eq!(external, dns_server_address(address, false));
         assert_eq!(hosted, dns_server_address(address, true));
+    }
+
+    #[test]
+    fn test_parse_node() {
+        use crate::Region;
+
+        let result = "148e21dad76789 sea,4d89699c030518 ams,6e82de14c35038 sin";
+        let nodes: Vec<Node> = result.split(',').filter_map(|n| n.parse().ok()).collect();
+        assert_eq!(
+            &nodes,
+            &[
+                Node::new(Region::Seattle, "148e21dad76789"),
+                Node::new(Region::Amsterdam, "4d89699c030518"),
+                Node::new(Region::Singapore, "6e82de14c35038")
+            ]
+        );
     }
 }
