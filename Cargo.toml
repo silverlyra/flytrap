@@ -1,13 +1,14 @@
 [package]
 name = "flytrap"
 description = "Query the Fly.io runtime environment"
-version = "0.0.3"
+version = "0.1.0"
 edition = "2021"
 license = "MIT"
 authors = ["Lyra Naeseth <lyra@lyra.codes>"]
+homepage = "https://flytrap.fly.dev/"
 repository = "https://github.com/silverlyra/flytrap"
 categories = ["api-bindings", "config", "network-programming"]
-keywords = ["fly"]
+keywords = ["fly", "fly-io"]
 readme = "Readme.md"
 
 [features]
