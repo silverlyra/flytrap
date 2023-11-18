@@ -94,11 +94,8 @@ impl Placement {
     ///
     /// [region]: https://fly.io/docs/reference/regions/
     #[cfg(feature = "regions")]
-    pub fn region(&self) -> Option<Region> {
-        match self.location {
-            Location::Region(region) => Some(region),
-            _ => None,
-        }
+    pub const fn region(&self) -> Option<Region> {
+        self.location.region()
     }
 }
 
