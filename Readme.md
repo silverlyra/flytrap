@@ -158,8 +158,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 [resolver]: https://docs.rs/flytrap/latest/flytrap/struct.Resolver.html
 
-
-
 ## Features
 
 Flytrap’s compilation can be controlled through a number of [Cargo features][].
@@ -180,5 +178,6 @@ _(Features marked with a ⭐️ are enabled by default.)_
 [headers]: https://docs.rs/headers/latest/headers/trait.Header.html
 [hickory]: https://lib.rs/crates/hickory-resolver
 [if-addrs]: https://lib.rs/crates/if-addrs
+[region-details]: https://docs.rs/flytrap/latest/flytrap/struct.RegionDetails.html
 [serde]: https://serde.rs/
 [system-resolver]: https://docs.rs/flytrap/latest/flytrap/struct.Resolver.html#method.system
