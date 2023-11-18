@@ -11,6 +11,12 @@ use tinyvec::ArrayVec;
 /// For region codes recognized by this package (e.g., `ams`, `nrt`, `ord`), the
 /// value will be a [`Region`] with known [details][RegionDetails]. For
 /// unrecognized codes, the value will be a bare [`RegionCode`].
+///
+/// ```
+/// use flytrap::{Location, Region};
+///
+/// let loc: Location = Region::Santiago.into();
+/// ```
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -20,6 +26,16 @@ pub enum Location {
 }
 
 impl Location {
+    /// The known [`Region`] for this location, or `None` if the region
+    /// [code][RegionCode] was unrecognized.
+    #[inline]
+    pub const fn region(&self) -> Option<Region> {
+        match *self {
+            Location::Region(region) => Some(region),
+            Location::Unknown(_) => None,
+        }
+    }
+
     #[inline]
     fn key(&self) -> RegionKey<'_> {
         match self {
@@ -76,6 +92,15 @@ impl From<RegionCode> for Location {
     }
 }
 
+impl From<Location> for Option<Region> {
+    fn from(value: Location) -> Self {
+        match value {
+            Location::Region(region) => Some(region),
+            Location::Unknown(_) => None,
+        }
+    }
+}
+
 /// A [Fly.io region][regions].
 ///
 /// Information about the region is available through the associated
@@ -85,6 +110,7 @@ impl From<RegionCode> for Location {
 ///
 /// ```
 /// use flytrap::Region;
+/// # use std::mem;
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let chicago: Region = "ord".parse()?;
@@ -94,6 +120,7 @@ impl From<RegionCode> for Location {
 /// assert_eq!(chicago.city.country, "US");
 /// assert!(chicago.city.geo.x() < Region::Amsterdam.city.geo.x());
 /// assert_eq!(chicago.to_string(), "ord");
+/// assert_eq!(mem::size_of::<Region>(), 4);
 /// # Ok(())
 /// # }
 /// ```
@@ -297,6 +324,16 @@ impl FromStr for Region {
     }
 }
 
+/// Attributes of a known [`Region`].
+///
+/// ```
+/// use flytrap::{Region, RegionDetails};
+///
+/// let RegionDetails { code, name, city } = Region::Atlanta.details();
+/// assert_eq!(code, "atl");
+/// assert_eq!(city.name, "Atlanta");
+/// assert_eq!(name, "Atlanta, Georgia (US)");
+/// ```
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RegionDetails<'l> {
@@ -325,6 +362,7 @@ impl RegionDetails<'static> {
     }
 }
 
+/// Describes a city where a Fly.io [region][Region] is hosted.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct City<'l> {
@@ -374,6 +412,26 @@ lazy_static! {
     };
 }
 
+/// An unrecognized Fly.io [region][] code.
+///
+/// If Flytrap parses a region code which doesn't match any of the [`Region`]
+/// variants compiled into the crate, the bare value is preserved as a
+/// `RegionCode`.
+///
+/// [region]: https://fly.io/docs/reference/regions/
+///
+/// ```
+/// use flytrap::{Location, Region};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let cairo: Location = "cai".parse()?;
+/// let tokyo: Location = "nrt".parse()?;
+///
+/// assert_eq!(cairo, Location::Unknown("cai".parse()?));
+/// assert_eq!(tokyo, Location::Region(Region::Tokyo));
+/// # Ok(())
+/// # }
+/// ```
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RegionCode(ArrayVec<[u8; 4]>);
@@ -443,6 +501,7 @@ impl PartialOrd for RegionCode {
     }
 }
 
+/// An error parsing a [`Region`] or [`RegionCode`].
 #[derive(thiserror::Error, Debug)]
 pub enum RegionError {
     #[error("invalid Fly.io region code")]
