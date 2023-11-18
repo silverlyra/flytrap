@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg), deny(rustdoc::broken_intra_doc_links))]
+
 //! Flytrap is a crate for reading the [Fly.io][] runtime [environment][].
 //!
 //! [Fly.io]: https://fly.io/
