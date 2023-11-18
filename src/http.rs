@@ -129,6 +129,8 @@ impl FlyRegion {
         Self(region)
     }
 
+    #[cfg(feature = "regions")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "regions")))]
     pub const fn region(&self) -> Option<Region> {
         match self.0 {
             Location::Region(region) => Some(region),
@@ -136,6 +138,8 @@ impl FlyRegion {
         }
     }
 
+    #[cfg(feature = "regions")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "regions")))]
     pub const fn into_inner(self) -> Location {
         self.0
     }
@@ -198,7 +202,7 @@ impl From<&FlyRegion> for HeaderValue {
 
         #[cfg(not(feature = "regions"))]
         let value =
-            HeaderValue::from_str(&value.0).expect("Fly-Region not serializable as HeaderValue");
+            HeaderValue::from_str(&region.0).expect("Fly-Region not serializable as HeaderValue");
 
         value
     }

@@ -1,0 +1,19 @@
+[package]
+name = "flytrap-demo"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Lyra Naeseth <lyra@lyra.codes>"]
+homepage = "https://flytrap.fly.dev/"
+repository = "https://github.com/silverlyra/flytrap"
+readme = "Readme.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+askama = { version = "0.12.1", features = ["serde", "serde-json", "with-axum"] }
+askama_axum = { version = "0.3.0", features = ["serde-json"] }
+axum = { version = "0.6.20", features = ["headers"] }
+flytrap = { path = "../", features = ["serde"] }
+serde = { version = "1.0.192", features = ["derive"] }
+tokio = { version = "1.34.0", features = ["full"] }

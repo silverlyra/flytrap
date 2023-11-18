@@ -29,7 +29,7 @@ Flytrap is a Rust [crate][] for reading the [Fly.io][] runtime [environment][].
 
 A [demo app][] is available at [**flytrap.fly.dev**](https://flytrap.fly.dev) which shows this crate’s capabilities.
 
-[demo app]: https://github.com/silverlyra/flytrap/blob/main/examples/server.rs
+[demo app]: https://github.com/silverlyra/flytrap/tree/main/demo
 
 ## Usage
 
