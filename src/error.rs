@@ -1,6 +1,6 @@
 use hickory_resolver::error::ResolveError;
 
-/// An error in a [`Resolver`] operation.
+/// An error in a [`Resolver`][crate::Resolver] operation.
 #[derive(thiserror::Error, Clone, Debug)]
 #[non_exhaustive]
 pub enum Error {

@@ -16,7 +16,7 @@ pub struct Resolver(pub(crate) TokioAsyncResolver);
 
 impl Resolver {
     /// Create a [`Resolver`] which configures itself based on the host's
-    /// [detected][internal_address] Fly.io [private network][] address.
+    /// [detected][private_address] Fly.io [private network][] address.
     ///
     /// If the host does not appear to be running under Fly.io or connected to
     /// the Wireguard VPN, an `Unavailable` [error][Error] will be returned.
