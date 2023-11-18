@@ -17,13 +17,14 @@ Flytrap is a Rust [crate][] for reading the [Fly.io][] runtime [environment][].
 
 - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
-- Parse Fly.io [request headers][] like `Fly-Client-IP` (into an [`IpAddr`][ip])
+- Parse Fly.io [request headers][] like [`Fly-Client-IP`][] (into an [`IpAddr`][ip])
 - Turn Fly.io [region][regions] codes like `ord` into names like ”Chicago” and lat/long coordinates
 
 [env-vars]: https://fly.io/docs/reference/runtime-environment/#environment-variables
 [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
 [request headers]: https://fly.io/docs/reference/runtime-environment/#request-headers
-[ip]: https://doc.rust-lang.org/stable/core/net/enum.IpAddr.html
+[`Fly-Client-IP`]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
+[ip]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
 [regions]: https://fly.io/docs/reference/regions/
 
 A [demo app][] is available at [**flytrap.fly.dev**](https://flytrap.fly.dev) which shows this crate’s capabilities.

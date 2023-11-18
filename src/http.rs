@@ -1,4 +1,5 @@
-//! HTTP [header][Header] types for `Fly-` edge proxy request headers.
+//! [Header] types for `Fly-` edge proxy request headers, like
+//! [`Fly-Client-IP`][FlyClientIp].
 
 use std::{fmt, net::IpAddr};
 

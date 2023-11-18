@@ -8,7 +8,7 @@
 //! - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 //! - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
 //! - Parse Fly.io [request headers][] like `Fly-Client-IP` (into an [`IpAddr`][std::net::IpAddr])
-//! - Turn Fly.io [region][regions] codes like `ord` into names like ”Chicago” and lat/long coordinates
+//! - Turn Fly.io [region][regions] codes like `ord` into names like “Chicago” and lat/long coordinates
 //!
 //! [env-vars]: https://fly.io/docs/reference/runtime-environment/#environment-variables
 //! [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
