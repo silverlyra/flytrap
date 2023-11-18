@@ -1,11 +1,19 @@
 flytrap
 =======
 
+[![Crates.io](https://img.shields.io/crates/v/flytrap?label=crate&labelColor=%23fdc452&color=gray)][crate]
+[![CI](https://img.shields.io/github/actions/workflow/status/silverlyra/flytrap/ci.yml?label=%20&logo=github)][build]
+[![docs.rs](https://img.shields.io/docsrs/flytrap)][docs]
+[![MIT license](https://img.shields.io/crates/l/flytrap?color=3ae)][license]
+
 Flytrap is a Rust [crate][] for reading the [Fly.io][] runtime [environment][].
 
 [crate]: https://lib.rs/crates/flytrap
 [Fly.io]: https://fly.io/
 [environment]: https://fly.io/docs/reference/runtime-environment/
+[build]: https://github.com/silverlyra/flytrap/actions/workflows/ci.yml?query=branch%3Amain
+[docs]: https://docs.rs/flytrap
+[license]: ./LICENSE
 
 - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
@@ -158,8 +166,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 [resolver]: https://docs.rs/flytrap/latest/flytrap/struct.Resolver.html
 
-
-
 ## Features
 
 Flytrap’s compilation can be controlled through a number of [Cargo features][].
@@ -180,5 +186,6 @@ _(Features marked with a ⭐️ are enabled by default.)_
 [headers]: https://docs.rs/headers/latest/headers/trait.Header.html
 [hickory]: https://lib.rs/crates/hickory-resolver
 [if-addrs]: https://lib.rs/crates/if-addrs
+[region-details]: https://docs.rs/flytrap/latest/flytrap/struct.RegionDetails.html
 [serde]: https://serde.rs/
 [system-resolver]: https://docs.rs/flytrap/latest/flytrap/struct.Resolver.html#method.system

@@ -11,6 +11,12 @@ use tinyvec::ArrayVec;
 /// For region codes recognized by this package (e.g., `ams`, `nrt`, `ord`), the
 /// value will be a [`Region`] with known [details][RegionDetails]. For
 /// unrecognized codes, the value will be a bare [`RegionCode`].
+///
+/// ```
+/// use flytrap::{Location, Region};
+///
+/// let loc: Location = Region::Santiago.into();
+/// ```
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -20,6 +26,16 @@ pub enum Location {
 }
 
 impl Location {
+    /// The known [`Region`] for this location, or `None` if the region
+    /// [code][RegionCode] was unrecognized.
+    #[inline]
+    pub const fn region(&self) -> Option<Region> {
+        match *self {
+            Location::Region(region) => Some(region),
+            Location::Unknown(_) => None,
+        }
+    }
+
     #[inline]
     fn key(&self) -> RegionKey<'_> {
         match self {
@@ -76,125 +92,13 @@ impl From<RegionCode> for Location {
     }
 }
 
-/// A [Fly.io region][regions].
-///
-/// Information about the region is available through the associated
-/// [`RegionDetails`], including the [`City`] where the region is located.
-///
-/// [regions]: https://fly.io/docs/reference/regions/
-#[cfg(target_endian = "little")]
-#[derive(Enum, PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[repr(u32)]
-pub enum Region {
-    /// The _Amsterdam, Netherlands_ Fly.io region (`ams`).
-    #[cfg_attr(feature = "serde", serde(rename = "ams"))]
-    Amsterdam = 0x736d61,
-    /// The _Ashburn, Virginia (US)_ Fly.io region (`iad`).
-    #[cfg_attr(feature = "serde", serde(rename = "iad"))]
-    Ashburn = 0x646169,
-    /// The _Atlanta, Georgia (US)_ Fly.io region (`atl`).
-    #[cfg_attr(feature = "serde", serde(rename = "atl"))]
-    Atlanta = 0x6c7461,
-    /// The _Bogotá, Colombia_ Fly.io region (`bog`).
-    #[cfg_attr(feature = "serde", serde(rename = "bog"))]
-    Bogota = 0x676f62,
-    /// The _Boston, Massachusetts (US)_ Fly.io region (`bos`).
-    #[cfg_attr(feature = "serde", serde(rename = "bos"))]
-    Boston = 0x736f62,
-    /// The _Bucharest, Romania_ Fly.io region (`otp`).
-    #[cfg_attr(feature = "serde", serde(rename = "otp"))]
-    Bucharest = 0x70746f,
-    /// The _Chennai (Madras), India_ Fly.io region (`maa`).
-    #[cfg_attr(feature = "serde", serde(rename = "maa"))]
-    Chennai = 0x61616d,
-    /// The _Chicago, Illinois (US)_ Fly.io region (`ord`).
-    #[cfg_attr(feature = "serde", serde(rename = "ord"))]
-    Chicago = 0x64726f,
-    /// The _Dallas, Texas (US)_ Fly.io region (`dfw`).
-    #[cfg_attr(feature = "serde", serde(rename = "dfw"))]
-    Dallas = 0x776664,
-    /// The _Denver, Colorado (US)_ Fly.io region (`den`).
-    #[cfg_attr(feature = "serde", serde(rename = "den"))]
-    Denver = 0x6e6564,
-    /// The _Ezeiza, Argentina_ Fly.io region (`eze`).
-    #[cfg_attr(feature = "serde", serde(rename = "eze"))]
-    Ezeiza = 0x657a65,
-    /// The _Frankfurt, Germany_ Fly.io region (`fra`).
-    #[cfg_attr(feature = "serde", serde(rename = "fra"))]
-    Frankfurt = 0x617266,
-    /// The _Guadalajara, Mexico_ Fly.io region (`gdl`).
-    #[cfg_attr(feature = "serde", serde(rename = "gdl"))]
-    Guadalajara = 0x6c6467,
-    /// The _Hong Kong, Hong Kong_ Fly.io region (`hkg`).
-    #[cfg_attr(feature = "serde", serde(rename = "hkg"))]
-    HongKong = 0x676b68,
-    /// The _Johannesburg, South Africa_ Fly.io region (`jnb`).
-    #[cfg_attr(feature = "serde", serde(rename = "jnb"))]
-    Johannesburg = 0x626e6a,
-    /// The _London, United Kingdom_ Fly.io region (`lhr`).
-    #[cfg_attr(feature = "serde", serde(rename = "lhr"))]
-    London = 0x72686c,
-    /// The _Los Angeles, California (US)_ Fly.io region (`lax`).
-    #[cfg_attr(feature = "serde", serde(rename = "lax"))]
-    LosAngeles = 0x78616c,
-    /// The _Madrid, Spain_ Fly.io region (`mad`).
-    #[cfg_attr(feature = "serde", serde(rename = "mad"))]
-    Madrid = 0x64616d,
-    /// The _Miami, Florida (US)_ Fly.io region (`mia`).
-    #[cfg_attr(feature = "serde", serde(rename = "mia"))]
-    Miami = 0x61696d,
-    /// The _Montreal, Canada_ Fly.io region (`yul`).
-    #[cfg_attr(feature = "serde", serde(rename = "yul"))]
-    Montreal = 0x6c7579,
-    /// The _Mumbai, India_ Fly.io region (`bom`).
-    #[cfg_attr(feature = "serde", serde(rename = "bom"))]
-    Mumbai = 0x6d6f62,
-    /// The _Paris, France_ Fly.io region (`cdg`).
-    #[cfg_attr(feature = "serde", serde(rename = "cdg"))]
-    Paris = 0x676463,
-    /// The _Phoenix, Arizona (US)_ Fly.io region (`phx`).
-    #[cfg_attr(feature = "serde", serde(rename = "phx"))]
-    Phoenix = 0x786870,
-    /// The _Querétaro, Mexico_ Fly.io region (`qro`).
-    #[cfg_attr(feature = "serde", serde(rename = "qro"))]
-    Queretaro = 0x6f7271,
-    /// The _Rio de Janeiro, Brazil_ Fly.io region (`gig`).
-    #[cfg_attr(feature = "serde", serde(rename = "gig"))]
-    RioDeJaneiro = 0x676967,
-    /// The _San Jose, California (US)_ Fly.io region (`sjc`).
-    #[cfg_attr(feature = "serde", serde(rename = "sjc"))]
-    SanJose = 0x636a73,
-    /// The _Santiago, Chile_ Fly.io region (`scl`).
-    #[cfg_attr(feature = "serde", serde(rename = "scl"))]
-    Santiago = 0x6c6373,
-    /// The _Sao Paulo, Brazil_ Fly.io region (`gru`).
-    #[cfg_attr(feature = "serde", serde(rename = "gru"))]
-    SaoPaulo = 0x757267,
-    /// The _Seattle, Washington (US)_ Fly.io region (`sea`).
-    #[cfg_attr(feature = "serde", serde(rename = "sea"))]
-    Seattle = 0x616573,
-    /// The _Secaucus, NJ (US)_ Fly.io region (`ewr`).
-    #[cfg_attr(feature = "serde", serde(rename = "ewr"))]
-    Secaucus = 0x727765,
-    /// The _Singapore, Singapore_ Fly.io region (`sin`).
-    #[cfg_attr(feature = "serde", serde(rename = "sin"))]
-    Singapore = 0x6e6973,
-    /// The _Stockholm, Sweden_ Fly.io region (`arn`).
-    #[cfg_attr(feature = "serde", serde(rename = "arn"))]
-    Stockholm = 0x6e7261,
-    /// The _Sydney, Australia_ Fly.io region (`syd`).
-    #[cfg_attr(feature = "serde", serde(rename = "syd"))]
-    Sydney = 0x647973,
-    /// The _Tokyo, Japan_ Fly.io region (`nrt`).
-    #[cfg_attr(feature = "serde", serde(rename = "nrt"))]
-    Tokyo = 0x74726e,
-    /// The _Toronto, Canada_ Fly.io region (`yyz`).
-    #[cfg_attr(feature = "serde", serde(rename = "yyz"))]
-    Toronto = 0x7a7979,
-    /// The _Warsaw, Poland_ Fly.io region (`waw`).
-    #[cfg_attr(feature = "serde", serde(rename = "waw"))]
-    Warsaw = 0x776177,
+impl From<Location> for Option<Region> {
+    fn from(value: Location) -> Self {
+        match value {
+            Location::Region(region) => Some(region),
+            Location::Unknown(_) => None,
+        }
+    }
 }
 
 /// A [Fly.io region][regions].
@@ -203,7 +107,23 @@ pub enum Region {
 /// [`RegionDetails`], including the [`City`] where the region is located.
 ///
 /// [regions]: https://fly.io/docs/reference/regions/
-#[cfg(target_endian = "big")]
+///
+/// ```
+/// use flytrap::Region;
+/// # use std::mem;
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let chicago: Region = "ord".parse()?;
+///
+/// assert_eq!(chicago.name, "Chicago, Illinois (US)");
+/// assert_eq!(chicago.city.name, "Chicago");
+/// assert_eq!(chicago.city.country, "US");
+/// assert!(chicago.city.geo.x() < Region::Amsterdam.city.geo.x());
+/// assert_eq!(chicago.to_string(), "ord");
+/// assert_eq!(mem::size_of::<Region>(), 4);
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Enum, PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[repr(u32)]
@@ -404,6 +324,16 @@ impl FromStr for Region {
     }
 }
 
+/// Attributes of a known [`Region`].
+///
+/// ```
+/// use flytrap::{Region, RegionDetails};
+///
+/// let RegionDetails { code, name, city } = Region::Atlanta.details();
+/// assert_eq!(code, "atl");
+/// assert_eq!(city.name, "Atlanta");
+/// assert_eq!(name, "Atlanta, Georgia (US)");
+/// ```
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RegionDetails<'l> {
@@ -432,6 +362,7 @@ impl RegionDetails<'static> {
     }
 }
 
+/// Describes a city where a Fly.io [region][Region] is hosted.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct City<'l> {
@@ -481,6 +412,26 @@ lazy_static! {
     };
 }
 
+/// An unrecognized Fly.io [region][] code.
+///
+/// If Flytrap parses a region code which doesn't match any of the [`Region`]
+/// variants compiled into the crate, the bare value is preserved as a
+/// `RegionCode`.
+///
+/// [region]: https://fly.io/docs/reference/regions/
+///
+/// ```
+/// use flytrap::{Location, Region};
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let cairo: Location = "cai".parse()?;
+/// let tokyo: Location = "nrt".parse()?;
+///
+/// assert_eq!(cairo, Location::Unknown("cai".parse()?));
+/// assert_eq!(tokyo, Location::Region(Region::Tokyo));
+/// # Ok(())
+/// # }
+/// ```
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RegionCode(ArrayVec<[u8; 4]>);
@@ -550,6 +501,7 @@ impl PartialOrd for RegionCode {
     }
 }
 
+/// An error parsing a [`Region`] or [`RegionCode`].
 #[derive(thiserror::Error, Debug)]
 pub enum RegionError {
     #[error("invalid Fly.io region code")]

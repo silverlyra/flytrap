@@ -7,7 +7,6 @@ async function main() {
 
   console.dir(regions, { depth: 5 });
 
-  console.log(enumeration(regions, true));
   console.log(enumeration(regions, false));
   console.log();
 
@@ -60,8 +59,6 @@ function enumeration(regionMap, flip) {
     a.city.name.localeCompare(b.city.name)
   );
 
-  const cfg = `#[cfg(target_endian = ${flip ? `"little"` : `"big"`})]\n`;
-
   const entry = (region) =>
     [
       `  /// The _${region.name}_ Fly.io region (\`${region.code}\`).`,
@@ -69,7 +66,7 @@ function enumeration(regionMap, flip) {
       `  ${key(region)} = ${discriminant(region, flip)},`,
     ].join("\n");
 
-  return cfg + `pub enum Region {\n${regions.map(entry).join("\n")}\n}\n`;
+  return `pub enum Region {\n${regions.map(entry).join("\n")}\n}\n`;
 }
 
 function discriminant(region, flip) {
