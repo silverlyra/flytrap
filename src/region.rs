@@ -60,7 +60,7 @@ impl Ord for Location {
 
 impl PartialOrd for Location {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.key().partial_cmp(&other.key())
+        Some(self.cmp(other))
     }
 }
 
@@ -340,7 +340,7 @@ impl Ord for Region {
 
 impl PartialOrd for Region {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.key().partial_cmp(&other.key())
+        Some(self.cmp(other))
     }
 }
 
@@ -447,37 +447,37 @@ lazy_static! {
         Region::Atlanta => RegionDetails::new("atl", "Atlanta, Georgia (US)", "Atlanta", "US", [33.6407, -84.4277]),
         Region::Bogota => RegionDetails::new("bog", "Bogotá, Colombia", "Bogotá", "CO", [4.70159, -74.1469]),
         Region::Mumbai => RegionDetails::new("bom", "Mumbai, India", "Mumbai", "IN", [19.097403, 72.874245]),
-        Region::Boston => RegionDetails::new("bos", "Boston, Massachusetts (US)", "Boston", "US", [42.366978, -71.022362]),
+        Region::Boston => RegionDetails::new("bos", "Boston, Massachusetts (US)", "Boston", "US", [42.366978, -71.022_36]),
         Region::Paris => RegionDetails::new("cdg", "Paris, France", "Paris", "FR", [48.860875, 2.353477]),
         Region::Denver => RegionDetails::new("den", "Denver, Colorado (US)", "Denver", "US", [39.7392, -104.9847]),
         Region::Dallas => RegionDetails::new("dfw", "Dallas, Texas (US)", "Dallas", "US", [32.778287, -96.7984]),
-        Region::Secaucus => RegionDetails::new("ewr", "Secaucus, NJ (US)", "Secaucus", "US", [40.789543, -74.056534]),
+        Region::Secaucus => RegionDetails::new("ewr", "Secaucus, NJ (US)", "Secaucus", "US", [40.789543, -74.056_53]),
         Region::Ezeiza => RegionDetails::new("eze", "Ezeiza, Argentina", "Ezeiza", "AR", [-34.8222, -58.5358]),
         Region::Frankfurt => RegionDetails::new("fra", "Frankfurt, Germany", "Frankfurt", "DE", [50.1167, 8.6833]),
         Region::Guadalajara => RegionDetails::new("gdl", "Guadalajara, Mexico", "Guadalajara", "MX", [20.5217, -103.3109]),
         Region::RioDeJaneiro => RegionDetails::new("gig", "Rio de Janeiro, Brazil", "Rio de Janeiro", "BR", [-22.8099, -43.2505]),
-        Region::SaoPaulo => RegionDetails::new("gru", "Sao Paulo, Brazil", "Sao Paulo", "BR", [-23.549664, -46.654351]),
-        Region::HongKong => RegionDetails::new("hkg", "Hong Kong, Hong Kong", "Hong Kong", "HK", [22.250971, 114.203224]),
+        Region::SaoPaulo => RegionDetails::new("gru", "Sao Paulo, Brazil", "Sao Paulo", "BR", [-23.549664, -46.654_35]),
+        Region::HongKong => RegionDetails::new("hkg", "Hong Kong, Hong Kong", "Hong Kong", "HK", [22.250_97, 114.203224]),
         Region::Ashburn => RegionDetails::new("iad", "Ashburn, Virginia (US)", "Ashburn", "US", [39.02214, -77.462556]),
         Region::Johannesburg => RegionDetails::new("jnb", "Johannesburg, South Africa", "Johannesburg", "ZA", [-26.13629, 28.20298]),
         Region::LosAngeles => RegionDetails::new("lax", "Los Angeles, California (US)", "Los Angeles", "US", [33.9416, -118.4085]),
         Region::London => RegionDetails::new("lhr", "London, United Kingdom", "London", "GB", [51.516434, -0.125656]),
-        Region::Chennai => RegionDetails::new("maa", "Chennai (Madras), India", "Chennai", "IN", [13.064429, 80.253067]),
+        Region::Chennai => RegionDetails::new("maa", "Chennai (Madras), India", "Chennai", "IN", [13.064429, 80.253_07]),
         Region::Madrid => RegionDetails::new("mad", "Madrid, Spain", "Madrid", "ES", [40.4381, -3.82]),
         Region::Miami => RegionDetails::new("mia", "Miami, Florida (US)", "Miami", "US", [25.7877, -80.2241]),
-        Region::Tokyo => RegionDetails::new("nrt", "Tokyo, Japan", "Tokyo", "JP", [35.621608, 139.741851]),
-        Region::Chicago => RegionDetails::new("ord", "Chicago, Illinois (US)", "Chicago", "US", [41.891544, -87.630386]),
+        Region::Tokyo => RegionDetails::new("nrt", "Tokyo, Japan", "Tokyo", "JP", [35.621_61, 139.741_85]),
+        Region::Chicago => RegionDetails::new("ord", "Chicago, Illinois (US)", "Chicago", "US", [41.891544, -87.630_39]),
         Region::Bucharest => RegionDetails::new("otp", "Bucharest, Romania", "Bucharest", "RO", [44.4325, 26.1039]),
-        Region::Phoenix => RegionDetails::new("phx", "Phoenix, Arizona (US)", "Phoenix", "US", [33.416084, -112.009482]),
+        Region::Phoenix => RegionDetails::new("phx", "Phoenix, Arizona (US)", "Phoenix", "US", [33.416084, -112.009_48]),
         Region::Queretaro => RegionDetails::new("qro", "Querétaro, Mexico", "Querétaro", "MX", [20.62, -100.1863]),
         Region::Santiago => RegionDetails::new("scl", "Santiago, Chile", "Santiago", "CL", [-33.36572, -70.64292]),
         Region::Seattle => RegionDetails::new("sea", "Seattle, Washington (US)", "Seattle", "US", [47.6097, -122.3331]),
         Region::Singapore => RegionDetails::new("sin", "Singapore, Singapore", "Singapore", "SG", [1.3, 103.8]),
-        Region::SanJose => RegionDetails::new("sjc", "San Jose, California (US)", "San Jose", "US", [37.351601, -121.896744]),
-        Region::Sydney => RegionDetails::new("syd", "Sydney, Australia", "Sydney", "AU", [-33.866033, 151.20693]),
+        Region::SanJose => RegionDetails::new("sjc", "San Jose, California (US)", "San Jose", "US", [37.351_6, -121.896_74]),
+        Region::Sydney => RegionDetails::new("syd", "Sydney, Australia", "Sydney", "AU", [-33.866_03, 151.20693]),
         Region::Warsaw => RegionDetails::new("waw", "Warsaw, Poland", "Warsaw", "PL", [52.1657, 20.9671]),
         Region::Montreal => RegionDetails::new("yul", "Montreal, Canada", "Montreal", "CA", [45.48647, -73.75549]),
-        Region::Toronto => RegionDetails::new("yyz", "Toronto, Canada", "Toronto", "CA", [43.644632, -79.384228]),
+        Region::Toronto => RegionDetails::new("yyz", "Toronto, Canada", "Toronto", "CA", [43.644_63, -79.384_23]),
     };
 }
 
@@ -546,7 +546,7 @@ impl Ord for RegionCode {
 
 impl PartialOrd for RegionCode {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.key().partial_cmp(&other.key())
+        Some(self.cmp(other))
     }
 }
 

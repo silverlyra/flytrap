@@ -22,7 +22,7 @@ pub struct AppResolver<'r> {
 impl<'r> AppResolver<'r> {
     pub(crate) fn new(app: impl Into<String>, resolver: &'r Resolver) -> Self {
         let app: String = app.into();
-        let name = Name::from_ascii(&app).expect("invalid app name");
+        let name = Name::from_ascii(app).expect("invalid app name");
         let domain = name.append_label("internal").unwrap();
 
         Self {
@@ -85,7 +85,7 @@ impl<'r> AppResolver<'r> {
 
     /// Find the geographically-nearest _n_ instances of this Fly.io app.
     pub async fn nearest_peer_addresses(&self, n: usize) -> Result<Vec<Ipv6Addr>, Error> {
-        let top = Name::from_ascii(&format!("top{n}"))
+        let top = Name::from_ascii(format!("top{n}"))
             .expect("invalid top n")
             .append_label("nearest")
             .unwrap()
@@ -107,6 +107,6 @@ impl<'r> AppResolver<'r> {
             .append_domain(&self.domain)
             .expect("invalid app domain");
 
-        lookup_txt(&self.resolver, query).await
+        lookup_txt(self.resolver, query).await
     }
 }

@@ -179,7 +179,7 @@ Flytrap’s compilation can be controlled through a number of [Cargo features][]
 - **`serde`**: Enable [Serde][serde] `#[derive(Deserialize, Serialize)]` on this crate’s types
 - **`system-resolver`**: Enable the [`Resolver::system()`][system-resolver] constructor, which reads `/etc/resolv.conf`
 
-_(Features marked with a ⭐️ are enabled by default.)
+_(Features marked with a ⭐️ are enabled by default.)_
 
 [headers]: https://docs.rs/headers/latest/headers/trait.Header.html
 [hickory]: https://lib.rs/crates/hickory-resolver
