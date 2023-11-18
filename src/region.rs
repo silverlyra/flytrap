@@ -82,6 +82,21 @@ impl From<RegionCode> for Location {
 /// [`RegionDetails`], including the [`City`] where the region is located.
 ///
 /// [regions]: https://fly.io/docs/reference/regions/
+///
+/// ```
+/// use flytrap::Region;
+///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let chicago: Region = "ord".parse()?;
+///
+/// assert_eq!(chicago.name, "Chicago, Illinois (US)");
+/// assert_eq!(chicago.city.name, "Chicago");
+/// assert_eq!(chicago.city.country, "US");
+/// assert!(chicago.city.geo.x() < Region::Amsterdam.city.geo.x());
+/// assert_eq!(chicago.to_string(), "ord");
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Enum, PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[repr(u32)]
