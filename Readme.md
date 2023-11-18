@@ -43,7 +43,7 @@ The [`Placement`][placement] type gives access to Fly.io runtime
 [environment variables][env-vars] like `$FLY_PUBLIC_IP` and `$FLY_REGION`.
 
 ```rust
-use flytrap::Placement;
+use flytrap::{Placement, Machine}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let runtime = Placement::current()?;
@@ -51,21 +51,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Fly.io app: {}", runtime.app);
     println!("    region: {}", runtime.location);
 
-    if let Some(machine) = runtime.machine {
-        print!("   machine: {}", machine.id);
-        if let Some(memory) = machine.memory {
-            print!(" ({memory} MB)");
-        }
-        if let Some(image) = machine.image {
-            print!(" running {image}");
-        }
-        println!();
+    if let Some(Machine{ id, memory: Some(memory), image: Some(image), .. }) = runtime.machine {
+        println!("   machine: {id} ({memory} MB) running {image}");
     }
 
     if let Some(public_ip) = runtime.public_ip {
-        println!(" public IP: {}", runtime.public_ip);
+        println!(" public IP: {}", public_ip);
     }
     println!("private IP: {}", runtime.private_ip);
+
+    Ok(())
 }
 ```
 
@@ -83,11 +78,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let region = runtime.region().unwrap_or(Region::Guadalajara);
 
     show(region);
+    Ok(())
 }
 
 fn show(region: Region) {
     let City { name, country, geo } = region.city;
-    println!("Running in {name} ({country}) @ {}, {}", geo.x, geo.y);
+    println!("Running in {name} ({country}) @ {}, {}", geo.x(), geo.y());
 }
 ```
 

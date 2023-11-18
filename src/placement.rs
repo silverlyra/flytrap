@@ -90,7 +90,7 @@ impl Placement {
     /// The Fly.io runtime [region][], as a [`Region`][] enum.
     ///
     /// If `$FLY_REGION` could not be parsed as a `Region`, returns `None`; use
-    /// the `.location` field to access the bare [`RegionCode`].
+    /// the `.location` field to access the bare [`RegionCode`][crate::RegionCode].
     ///
     /// [region]: https://fly.io/docs/reference/regions/
     #[cfg(feature = "regions")]
