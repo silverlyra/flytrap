@@ -1,11 +1,19 @@
 flytrap
 =======
 
+[![Crates.io](https://img.shields.io/crates/v/flytrap?label=crate&labelColor=%23fdc452&color=gray)][crate]
+[![CI](https://img.shields.io/github/actions/workflow/status/silverlyra/flytrap/ci.yml?label=%20&logo=github)][build]
+[![docs.rs](https://img.shields.io/docsrs/flytrap)][docs]
+[![MIT license](https://img.shields.io/crates/l/flytrap?color=3ae)][license]
+
 Flytrap is a Rust [crate][] for reading the [Fly.io][] runtime [environment][].
 
 [crate]: https://lib.rs/crates/flytrap
 [Fly.io]: https://fly.io/
 [environment]: https://fly.io/docs/reference/runtime-environment/
+[build]: https://github.com/silverlyra/flytrap/actions/workflows/ci.yml?query=branch%3Amain
+[docs]: https://docs.rs/flytrap
+[license]: ./LICENSE
 
 - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
