@@ -1,4 +1,5 @@
 {
   "cSpell.words": ["addrs", "docsrs", "resolv", "serde", "thiserror"],
-  "rust-analyzer.linkedProjects": ["./Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["./Cargo.toml"],
+  "rust-analyzer.check.command": "clippy"
 }

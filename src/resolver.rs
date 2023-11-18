@@ -399,7 +399,7 @@ impl std::hash::Hash for Instance {
 /// # use std::net::Ipv6Addr;
 /// # fn main() -> Result<(), std::net::AddrParseError> {
 /// let address: Ipv6Addr = "fdaa:0:18:a7b:d6b:0:a:2".parse()?;
-/// let dns = flytrap::dns_server_address(address);
+/// let dns = flytrap::dns_server_address(address, false);
 /// assert_eq!("fdaa:0:18::3", dns.to_string());
 /// # Ok(())
 /// # }

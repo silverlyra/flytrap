@@ -171,13 +171,8 @@ impl Machine {
 #[cfg(feature = "environment")]
 #[cfg_attr(docsrs, doc(cfg(feature = "environment")))]
 pub fn hosted() -> bool {
-    match (
-        std::env::var("FLY_APP_NAME"),
-        std::env::var("FLY_PRIVATE_IP"),
-    ) {
-        (Ok(_), Ok(_)) => true,
-        _ => false,
-    }
+    use std::env::var;
+    matches!((var("FLY_APP_NAME"), var("FLY_PRIVATE_IP")), (Ok(_), Ok(_)))
 }
 
 /// Read the [`$FLY_PRIVATE_IP`][private-ip] [environment variable][std::env::var],
