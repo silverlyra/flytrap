@@ -1,5 +1,13 @@
 {
-  "cSpell.words": ["addrs", "docsrs", "resolv", "serde", "thiserror"],
+  "cSpell.words": [
+    "addrs",
+    "docsrs",
+    "getrandom",
+    "resolv",
+    "serde",
+    "thiserror"
+  ],
   "rust-analyzer.linkedProjects": ["./Cargo.toml"],
-  "rust-analyzer.check.command": "clippy"
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.showUnlinkedFileNotification": false
 }

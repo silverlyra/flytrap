@@ -10,6 +10,10 @@ use flytrap::{
 };
 use serde::Serialize;
 
+mod app;
+mod cluster;
+mod message;
+
 #[derive(Template, Clone, Debug)]
 #[template(path = "index.html")]
 struct IndexResponse {

@@ -433,6 +433,7 @@ lazy_static! {
 pub struct RegionCode([u8; 4]);
 
 impl RegionCode {
+<<<<<<< HEAD
     /// The length in characters of a Fly.io [region][] code.
     ///
     /// [region]: https://fly.io/docs/reference/regions/
@@ -442,6 +443,8 @@ impl RegionCode {
     /// 0º latitude and longitude. Used as the coordinates for a [`Location::Unknown`].
     pub const NULL_ISLAND: (R32, R32) = (R32::unchecked_new(0.0), R32::unchecked_new(0.0));
 
+=======
+>>>>>>> 6088669 (checkpoint)
     /// Checks if the `input` passes for a Fly.io region code – `/^[a-z]{3}$/`.
     ///
     /// ```
@@ -467,13 +470,21 @@ impl RegionCode {
 
 impl AsRef<[u8]> for RegionCode {
     fn as_ref(&self) -> &[u8] {
+<<<<<<< HEAD
         self.as_slice()
+=======
+        &self.0[..3]
+>>>>>>> 6088669 (checkpoint)
     }
 }
 
 impl AsRef<str> for RegionCode {
     fn as_ref(&self) -> &str {
+<<<<<<< HEAD
         std::str::from_utf8(self.as_slice()).expect("invalid region code")
+=======
+        std::str::from_utf8(&self.0[..3]).expect("invalid region code")
+>>>>>>> 6088669 (checkpoint)
     }
 }
 
