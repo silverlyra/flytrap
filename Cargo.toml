@@ -22,14 +22,12 @@ regions = [
     "dep:geo-types",
     "dep:noisy_float",
     "dep:lazy_static",
-    "dep:tinyvec",
 ]
 serde = [
     "dep:serde",
     "geo-types?/serde",
     "enum-map?/serde",
     "noisy_float?/serde",
-    "tinyvec?/serde",
 ]
 system-resolver = [
     "dns",
@@ -54,9 +52,6 @@ lazy_static = { version = "^1.4", optional = true }
 noisy_float = { version = "^0.2", optional = true }
 serde = { version = "^1.0", optional = true }
 thiserror = { version = "^1.0" }
-tinyvec = { version = "^1.6", optional = true, default-features = false, features = [
-    "rustc_1_57",
-] }
 
 [dev-dependencies]
 axum = { version = "0.6.20", features = ["headers"] }

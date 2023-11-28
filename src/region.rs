@@ -4,7 +4,6 @@ use enum_map::{enum_map, Enum, EnumMap};
 use geo_types::Point;
 use lazy_static::lazy_static;
 use noisy_float::types::R32;
-use tinyvec::ArrayVec;
 
 /// A Fly.io point of presence.
 ///
@@ -94,10 +93,7 @@ impl From<RegionCode> for Location {
 
 impl From<Location> for Option<Region> {
     fn from(value: Location) -> Self {
-        match value {
-            Location::Region(region) => Some(region),
-            Location::Unknown(_) => None,
-        }
+        value.region()
     }
 }
 
@@ -434,36 +430,50 @@ lazy_static! {
 /// ```
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct RegionCode(ArrayVec<[u8; 4]>);
+pub struct RegionCode([u8; 4]);
 
 impl RegionCode {
-    pub(crate) fn new(data: [u8; 4]) -> Self {
-        let mut data = ArrayVec::from(data);
-        data.set_len(3);
+    /// The length in characters of a Fly.io [region][] code.
+    ///
+    /// [region]: https://fly.io/docs/reference/regions/
+    pub const LENGTH: usize = 3;
 
-        Self(data)
-    }
+    /// The geographic coordinates for "null island", a fictitious landform at
+    /// 0º latitude and longitude. Used as the coordinates for a [`Location::Unknown`].
+    pub const NULL_ISLAND: (R32, R32) = (R32::unchecked_new(0.0), R32::unchecked_new(0.0));
 
     /// Checks if the `input` passes for a Fly.io region code – `/^[a-z]{3}$/`.
+    ///
+    /// ```
+    /// use flytrap::RegionCode;
+    ///
+    /// assert!(RegionCode::valid("oak"));
+    /// assert!(!RegionCode::valid("MDW"));
+    /// assert!(!RegionCode::valid("hi"));
+    /// ```
     pub fn valid(input: &str) -> bool {
-        input.len() == 3 && input.chars().all(|c| c.is_ascii_lowercase())
+        input.len() == Self::LENGTH && input.chars().all(|c| c.is_ascii_lowercase())
+    }
+
+    #[inline(always)]
+    fn as_slice(&self) -> &[u8] {
+        &self.0[..3]
     }
 
     fn key(&self) -> RegionKey<'_> {
-        let zero = R32::unchecked_new(0.0);
-        (zero, zero, self.as_ref())
+        (Self::NULL_ISLAND.0, Self::NULL_ISLAND.1, self.as_ref())
     }
 }
 
 impl AsRef<[u8]> for RegionCode {
     fn as_ref(&self) -> &[u8] {
-        &self.0
+        self.as_slice()
     }
 }
 
 impl AsRef<str> for RegionCode {
     fn as_ref(&self) -> &str {
-        std::str::from_utf8(&self.0).expect("invalid region code")
+        std::str::from_utf8(self.as_slice()).expect("invalid region code")
     }
 }
 
@@ -473,7 +483,7 @@ impl FromStr for RegionCode {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if Self::valid(s) {
             let b = s.as_bytes();
-            Ok(Self::new([b[0], b[1], b[2], 0]))
+            Ok(Self([b[0], b[1], b[2], 0]))
         } else {
             Err(RegionError::Invalid)
         }
@@ -486,6 +496,12 @@ impl fmt::Display for RegionCode {
             Ok(code) => write!(f, "{code}"),
             Err(_) => write!(f, "---"),
         }
+    }
+}
+
+impl From<Region> for RegionCode {
+    fn from(value: Region) -> Self {
+        Self((value as u32).to_be_bytes())
     }
 }
 
@@ -502,7 +518,7 @@ impl PartialOrd for RegionCode {
 }
 
 /// An error parsing a [`Region`] or [`RegionCode`].
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum RegionError {
     #[error("invalid Fly.io region code")]
     Invalid,
@@ -520,7 +536,20 @@ const fn point(lat: f32, lon: f32) -> Point<R32> {
 
 #[cfg(test)]
 mod test {
-    use super::{City, Region};
+    use super::{City, Location, Region, RegionCode, RegionError};
+
+    #[test]
+    fn parse() {
+        assert_eq!(Ok(Location::Region(Region::Bogota)), "bog".parse());
+        assert_eq!(
+            Ok(Location::Unknown(RegionCode([0x6f, 0x61, 0x6b, 0]))),
+            "oak".parse()
+        );
+        assert!(matches!(
+            "hi".parse::<Location>(),
+            Err(RegionError::Invalid)
+        ));
+    }
 
     #[test]
     fn region_details() {
