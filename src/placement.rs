@@ -94,11 +94,8 @@ impl Placement {
     ///
     /// [region]: https://fly.io/docs/reference/regions/
     #[cfg(feature = "regions")]
-    pub fn region(&self) -> Option<Region> {
-        match self.location {
-            Location::Region(region) => Some(region),
-            _ => None,
-        }
+    pub const fn region(&self) -> Option<Region> {
+        self.location.region()
     }
 }
 
@@ -109,35 +106,30 @@ impl Placement {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Machine {
-    /// The unique [ID][] of this Fly.io Machine.
+    /// The unique ID of this Fly.io Machine ([`$FLY_MACHINE_ID`][def]).
     ///
-    /// Fly.io exposes this value to VM’s as `$FLY_MACHINE_ID`.
-    ///
-    /// [ID]: https://fly.io/docs/reference/runtime-environment/#fly_machine_id
+    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_machine_id
     #[doc(alias = "FLY_MACHINE_ID")]
     pub id: String,
 
-    /// The name of the Docker [image][] running this container.
+    /// The name of the Docker image running this container on `registry.fly.io`
+    /// ([`$FLY_IMAGE_REF`][def]).
     ///
-    /// Fly.io exposes this value to VM’s as `$FLY_IMAGE_REF`.
-    ///
-    /// [image]: https://fly.io/docs/reference/runtime-environment/#fly_image_ref
+    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_image_ref
     #[doc(alias = "FLY_IMAGE_REF")]
     pub image: Option<String>,
 
-    /// The [version][] assigned to a specific Fly.io Machine configuration.
+    /// The version assigned to a specific Fly.io Machine configuration
+    /// ([`$FLY_MACHINE_VERSION`][def]).
     ///
-    /// Fly.io exposes this value to VM’s as `$FLY_MACHINE_VERSION`.
-    ///
-    /// [version]: https://fly.io/docs/reference/runtime-environment/#fly_machine_version
+    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_machine_version
     #[doc(alias = "FLY_MACHINE_VERSION")]
     pub version: String,
 
-    /// The [memory][] allocated to the Fly.io Machine, in MB.
+    /// The memory allocated to the Fly.io Machine, in MB
+    /// ([`$FLY_VM_MEMORY_MB`][def]).
     ///
-    /// Fly.io exposes this value to VM’s as `$FLY_VM_MEMORY_MB`.
-    ///
-    /// [memory]: https://fly.io/docs/reference/runtime-environment/#fly_vm_memory_mb
+    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_vm_memory_mb
     #[doc(alias = "FLY_VM_MEMORY_MB")]
     pub memory: Option<usize>,
 }

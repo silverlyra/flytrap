@@ -1,22 +1,23 @@
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 
+use askama::Template;
 use axum::{
     extract::State, http::StatusCode, response::Html, routing::get, Json, Router, TypedHeader,
 };
 use flytrap::{
     http::{FlyClientIp, FlyRegion},
-    Peer, Placement, Region, RegionDetails, Resolver,
+    Error, Peer, Placement, RegionDetails, Resolver,
 };
 use serde::Serialize;
 
-#[derive(Serialize, Clone, Debug)]
-struct PlacementResponse {
-    now: chrono::DateTime<chrono::Utc>,
+#[derive(Template, Clone, Debug)]
+#[template(path = "index.html")]
+struct IndexResponse {
     client: IpAddr,
-    #[serde(flatten)]
     placement: Placement,
-    host: Option<RegionDetails<'static>>,
-    edge: Option<RegionDetails<'static>>,
+    host: RegionDetails<'static>,
+    edge: RegionDetails<'static>,
+    peers: Vec<Peer>,
 }
 
 #[tokio::main]
@@ -24,10 +25,11 @@ async fn main() {
     let resolver = Resolver::new().expect("failed to configure DNS resolver");
 
     let app = Router::new()
-        .route("/", get(placement))
+        .route("/", get(index))
         .route("/ip", get(ip))
         .route("/peers", get(peers))
         .route("/regions", get(regions))
+        .route("/up", get(up))
         .with_state(resolver);
 
     let listen = listen_address();
@@ -40,23 +42,26 @@ async fn main() {
         .unwrap();
 }
 
-async fn placement(
+async fn index(
+    State(resolver): State<Resolver>,
     TypedHeader(ip): TypedHeader<FlyClientIp>,
     TypedHeader(edge): TypedHeader<FlyRegion>,
-) -> Result<Json<PlacementResponse>, StatusCode> {
-    let here = Placement::current().map_err(|err| {
-        println!("error: {err}");
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
-    let region = here.region().as_ref().map(Region::details);
+) -> Result<IndexResponse, StatusCode> {
+    let placement = Placement::current().map_err(error)?;
+    let host_region = placement.region().ok_or(StatusCode::NOT_IMPLEMENTED)?;
+    let edge_region = edge.region().ok_or(StatusCode::NOT_IMPLEMENTED)?;
 
-    Ok(Json(PlacementResponse {
-        now: chrono::Utc::now(),
+    let app = resolver.current().map_err(error)?;
+    let mut peers = app.peers().await.map_err(error)?;
+    peers.sort();
+
+    Ok(IndexResponse {
         client: ip.into_inner(),
-        placement: here,
-        host: region,
-        edge: edge.region().as_ref().map(Region::details),
-    }))
+        placement,
+        host: host_region.details(),
+        edge: edge_region.details(),
+        peers,
+    })
 }
 
 async fn ip(
@@ -74,15 +79,9 @@ struct PeersResponse {
 }
 
 async fn peers(State(resolver): State<Resolver>) -> Result<Json<PeersResponse>, StatusCode> {
-    let app = resolver.current().map_err(|err| {
-        println!("error: {err}");
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    let app = resolver.current().map_err(error)?;
 
-    let peers = app.peers().await.map_err(|err| {
-        println!("error: {err}");
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    let peers = app.peers().await.map_err(error)?;
 
     Ok(Json(PeersResponse { peers }))
 }
@@ -93,19 +92,30 @@ struct RegionsResponse {
 }
 
 async fn regions(State(resolver): State<Resolver>) -> Result<Json<RegionsResponse>, StatusCode> {
-    let app = resolver.current().map_err(|err| {
-        println!("error: {err}");
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
-
-    let regions = app.regions().await.map_err(|err| {
-        println!("error: {err}");
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    let app = resolver.current().map_err(error)?;
+    let regions = app.regions().await.map_err(error)?;
 
     Ok(Json(RegionsResponse {
         regions: regions.into_iter().map(|region| region.details()).collect(),
     }))
+}
+
+async fn up() -> Result<Html<String>, StatusCode> {
+    let Placement {
+        app,
+        allocation,
+        private_ip,
+        ..
+    } = Placement::current().map_err(error)?;
+
+    Ok(Html(format!(
+        "Fly.io app <b>{app}</b> machine <code>{allocation}</code> running at {private_ip}."
+    )))
+}
+
+fn error(err: Error) -> StatusCode {
+    eprintln!("error: {err}");
+    StatusCode::INTERNAL_SERVER_ERROR
 }
 
 fn listen_address() -> SocketAddr {

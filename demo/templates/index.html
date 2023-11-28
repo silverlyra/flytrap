@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title -%}
+  Flytrap – Build fly.io-aware apps in Rust
+{%- endblock %}
+
+{% block style %}
+{% call super() %}
+{% include "index.css" %}
+{% endblock style %}
+
+{% block body %}
+
+<main>
+  <header>
+    <h1>flytrap</h1>
+    <h2>Build <a id="fly" href="https://fly.io/?ref=flytrap">fly.io</a>–aware apps in Rust</h2>
+  </header>
+  <aside id="about">
+    <p>
+      This is the demo app for the <a href="https://lib.rs/crates/flytrap"><em>flytrap</em></a> Rust crate,
+      showing some of what it learns from the fly.io environment.
+    </p>
+    <p>
+      To learn more about it, or to use it in your own app, check it out on
+      <a href="https://github.com/silverlyra/flytrap">GitHub</a> or
+      <a href="https://docs.rs/flytrap/latest/flytrap/">docs.rs</a>.
+    </p>
+  </aside>
+  <section id="regions">
+    <div class="edge region">
+      <div id="edge-label" class="label">Edge region</div>
+      <abbr aria-labelledby="edge-label" title="{{ edge.name }}">{{ edge.code }}</abbr>
+      <p class="name">{{ edge.city.name }} ({{ edge.city.country }})</p>
+      <div class="geo">{% call point(edge.city.geo) %}</div>
+    </div>
+    <div class="host region">
+      <div id="host-label" class="label">Host region</div>
+      <abbr aria-labelledby="host-label" title="{{ host.name }}">{{ host.code }}</abbr>
+      <p class="name">{{ host.city.name }} ({{ host.city.country }})
+      <div class="geo">{% call point(host.city.geo) %}</div>
+    </div>
+  </section>
+  <section id="request">
+    <figure id="client-ip">
+      <figcaption>Client IP</figcaption>
+      <code>{{ client }}</code>
+    </figure>
+    <figure id="app">
+      <figcaption>Fly.io application</figcaption>
+      <code>{{ placement.app }}</code>
+    </figure>
+    {% match placement.machine %}
+      {% when Some with (machine) %}
+        <figure id="machine">
+          <figcaption>Fly.io machine</figcaption>
+          <code>
+            {{ machine.id }}
+            {% match machine.memory %}
+              {% when Some with (memory) %}
+                <span id="machine-memory">({{ memory }} MB)</span>
+              {% when None %}
+            {% endmatch %}
+          </code>
+        </figure>
+        <figure id="machine-version">
+          <figcaption>Deployment version</figcaption>
+          <code>{{ machine.version }}</code>
+        </figure>
+      {% when None %}
+    {% endmatch %}
+  </section>
+  <section id="peers">
+    <h3>{{ peers.len() }} active machines:</h3>
+    <div id="peer-list">
+      {% for peer in peers %}
+        <figure id="peer-{{ peer.id }}"{% if peer.id == placement.allocation %} class="peer-self"{% endif %}>
+          <figcaption>{{ peer.id }}</figcaption>
+          <span class="peer-region">
+            {% match peer.region() %}
+              {% when Some with (region) %}
+                {{ region.city.name }}
+              {% when None %}
+                {{ peer.location }}
+            {% endmatch %}
+          </span>
+          <code class="peer-ip">{{ peer.private_ip }}</code>
+        </figure>
+      {% endfor %}
+    </div>
+  </section>
+  <footer>
+    <p>
+      <span><a class="repository" href="https://github.com/silverlyra/flytrap">flytrap</a> is an indie
+      open-source project, unaffiliated with fly.io. ✌🏻</span>
+      <span>© 2023 <a href="https://github.com/silverlyra">Lyra Naeseth</a></span>
+    </p>
+  </footer>
+</main>
+
+{% endblock body %}
+
+{% macro point(p) %}
+{{ "{:.0}º"|format(p.0.x) }}{% if p.0.x < 0.0 %}W{% else %}E{% endif %},
+{{ "{:.0}º"|format(p.0.y) }}{% if p.0.y < 0.0 %}S{% else %}N{% endif %}
+{% endmacro point %}

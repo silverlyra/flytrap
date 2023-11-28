@@ -1,4 +1,5 @@
 #![cfg_attr(docsrs, feature(doc_cfg), deny(rustdoc::broken_intra_doc_links))]
+#![cfg_attr(not(feature = "regions"), allow(unused_imports))]
 
 //! Flytrap is a crate for reading the [Fly.io][] runtime [environment][].
 //!
@@ -8,7 +9,7 @@
 //! - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 //! - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
 //! - Parse Fly.io [request headers][] like `Fly-Client-IP` (into an [`IpAddr`][std::net::IpAddr])
-//! - Turn Fly.io [region][regions] codes like `ord` into names like ”Chicago” and lat/long coordinates
+//! - Turn Fly.io [region][regions] codes like `ord` into names like “Chicago” and lat/long coordinates
 //!
 //! [env-vars]: https://fly.io/docs/reference/runtime-environment/#environment-variables
 //! [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses

@@ -228,6 +228,8 @@ impl Node {
     }
 
     /// Return this node’s [`Region`], if its region code was recognized.
+    #[cfg(feature = "regions")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "regions")))]
     pub const fn region(&self) -> Option<Region> {
         self.location.region()
     }
@@ -238,7 +240,11 @@ impl FromStr for Node {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Some((id, region)) = s.split_once(' ') {
+            #[cfg(feature = "regions")]
             let location: Location = region.parse().map_err(Error::from)?;
+            #[cfg(not(feature = "regions"))]
+            let location: Location = region.to_owned();
+
             Ok(Self {
                 location,
                 id: id.to_owned(),
@@ -460,6 +466,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "regions")]
     fn test_parse_node() {
         use crate::Region;
 

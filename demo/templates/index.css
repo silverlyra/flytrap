@@ -1,0 +1,322 @@
+main {
+  margin: 10vh auto;
+  padding: 0 5rem;
+  max-width: 60rem;
+}
+
+main > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+main > header > h1 {
+  flex: 0 1 33%;
+  color: #7E51D0;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 6em;
+  line-height: 1.1;
+}
+
+#fly {
+  color: inherit;
+  font-style: italic;
+  text-decoration: none;
+}
+
+#fly:hover {
+  color: #5D30B0;
+  transition: color 200ms ease;
+}
+
+main > header > h2 {
+  color: #34294a;
+  font-weight: 400;
+  font-size: 2em;
+  line-height: 1.3;
+}
+
+#about {
+  display: flex;
+  flex-wrap: wrap;
+  background: #DDC2FF;
+  font-size: 1.6em;
+  line-height: 1.4;
+  margin: 3em -2em;
+  padding: 1.5em 2em;
+  gap: 1.5em;
+}
+
+#about > p {
+  flex: 1;
+  min-width: 14em;
+}
+
+#about a {
+  color: #7E51D0;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+#regions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  margin: 1.5em 0;
+  gap: 1.5em;
+}
+
+#regions > .region {
+  background: #E4EDFF;
+  border-radius: 0.5em;
+  padding: 1.25em;
+  min-width: 14em;
+  text-align: center;
+}
+
+.region > h3 {
+  font-weight: 500;
+}
+
+.region > abbr {
+  display: block;
+  font-family: 'B612 Mono', monospace;
+  font-size: 3em;
+  line-height: 1.2;
+  margin: 0.2ex 0 0.5ex 0;
+  text-decoration: none;
+}
+
+.region > .name {
+  font-size: 1.4em;
+  line-height: 1.2;
+  margin-bottom: 0.3ex;
+}
+
+#request {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  margin: 1.5em 0;
+  gap: 1em;
+}
+
+#request > figure {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 1.25em;
+  min-width: 10em;
+}
+
+#request figcaption {
+  font-size: 0.9em;
+  margin-bottom: 0.4ex;
+}
+
+#request code {
+  display: block;
+  font-size: 1.3em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#machine-memory {
+  font-size: 0.9em;
+}
+
+#peers {
+  margin: 3em 0;
+}
+
+#peers > h3 {
+  margin: 0 0 1em 0;
+  font-weight: 500;
+  font-size: 2em;
+  line-height: 1.3;
+}
+
+#peer-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 2.5em;
+}
+
+#peer-list > figure {
+  background-color: #E4EDFF;
+  padding: 1em;
+  min-width: 5em;
+  border-radius: 0.5em;
+  text-align: center;
+}
+
+#peer-list > figure > * {
+  display: block;
+}
+
+#peer-list figcaption {
+  font-size: 0.8em;
+  margin-bottom: 0.4ex;
+}
+
+#peer-list .peer-region {
+  font-size: 1.3em;
+  margin: 0.5ex 0;
+}
+
+#peer-list .peer-ip {
+  font-size: 0.6em;
+}
+
+#peer-list > figure.peer-self {
+  background-color: #EBFFFF;
+}
+
+main > footer {
+  margin-top: 10vh;
+  font-size: 0.9em;
+  color: rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
+
+main > footer > p > span {
+  display: inline-block;
+  margin: 0.5ex;
+}
+
+main > footer a {
+  color: #756497;
+  text-decoration: none;
+}
+
+main > footer a.repository {
+  font-style: italic;
+}
+
+main > footer a:hover {
+  color: #5D30B0;
+  transition: color 200ms ease;
+}
+
+@media (max-width: 80rem) {
+  main > header > h1 {
+    font-size: 4em;
+  }
+
+  #request > figure {
+    min-width: 14em;
+  }
+
+  #peers {
+    margin: 2em 0;
+  }
+
+  #peer-list {
+    gap: 2em;
+  }
+}
+
+@media (max-width: 60rem) {
+  main {
+    margin: 7.5vh auto;
+  }
+
+  main > header > h1 {
+    font-size: 3em;
+  }
+
+  main > header > h2 {
+    font-size: 1.7em;
+  }
+
+  #about {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 1.4em;
+  }
+
+  .region > abbr {
+    font-size: 2em;
+  }
+
+  .region > .name, #request code {
+    font-size: 1.2em;
+  }
+
+  #request {
+    gap: 0.6em;
+    justify-content: center;
+  }
+
+  #request figcaption {
+    margin-bottom: 0.3ex;
+  }
+
+  #peer-list {
+    gap: 1.2em;
+  }
+
+  #peer-list .peer-region {
+    font-size: 1.2em;
+  }
+
+  #peer-list .peer-ip {
+    font-size: 0.4em;
+  }
+
+  main > footer {
+    font-size: 0.7em;
+    margin-top: 5vh;
+  }
+}
+
+@media (max-width: 44rem) {
+  main {
+    margin: 5vh auto;
+  }
+
+  #about {
+    font-size: 1.3em;
+    line-height: 1.3;
+  }
+
+  #request > figure {
+    min-width: 60vw;
+  }
+
+  #request figcaption {
+    font-size: 0.8em;
+  }
+
+  #request code {
+    font-size: 1.1em;
+  }
+
+  #peers {
+    margin: 2em 0;
+  }
+
+  #peers > h3 {
+    font-size: 1.5em;
+  }
+
+  #peer-list {
+    gap: 0.8em;
+  }
+
+  #peer-list figcaption {
+    font-size: 0.7em;
+  }
+
+  #peer-list .peer-region {
+    font-size: 1.1em;
+    margin-bottom: 0;
+  }
+
+  #peer-list .peer-ip {
+    display: none;
+  }
+}
