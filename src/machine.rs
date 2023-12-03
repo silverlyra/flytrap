@@ -77,6 +77,10 @@ impl MachineId {
     pub fn new(id: impl AsRef<str>) -> Self {
         id.as_ref().parse().expect("invalid machine ID")
     }
+
+    pub const fn value(self) -> u64 {
+        self.0.get()
+    }
 }
 
 impl FromStr for MachineId {

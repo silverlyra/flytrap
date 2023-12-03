@@ -1,5 +1,6 @@
 #![cfg_attr(docsrs, feature(doc_cfg), deny(rustdoc::broken_intra_doc_links))]
 #![cfg_attr(not(feature = "regions"), allow(unused_imports))]
+#![allow(uncommon_codepoints)]
 
 //! Flytrap is a crate for reading the [Fly.io][] runtime [environment][].
 //!
@@ -116,6 +117,7 @@
 //! - **`dns`**: Enable [`Resolver`] for querying Fly.io [internal DNS][dns], via [`hickory-dns`][hickory] ⭐
 //! - **`detect`**: Enable automatic [`Resolver`] setup for Wireguard VPN clients, via [`if-addrs`][if-addrs] ⭐️
 //! - **`environment`**: Enable code which reads Fly.io environment variables like `$FLY_PUBLIC_IP` ⭐️
+//! - **`gossip`**: Enable the [`gossip`] module for seeing which Fly Machines are running
 //! - **`http`**: Enable types for HTTP [`headers`][headers] like [`Fly-Client-IP`][http::FlyClientIp] ⭐️
 //! - **`nightly`**: Enable code which is only accepted by nightly Rust toolchains
 //! - **`regions`**: Enable the [`Region`] type and [`RegionDetails`] structures ⭐️
@@ -132,6 +134,9 @@
 #[cfg(feature = "dns")]
 mod app;
 mod error;
+#[cfg(feature = "gossip")]
+#[cfg_attr(docsrs, doc(cfg(feature = "gossip")))]
+pub mod gossip;
 #[cfg(feature = "http")]
 #[cfg_attr(docsrs, doc(cfg(feature = "http")))]
 pub mod http;

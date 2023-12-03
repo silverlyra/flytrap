@@ -1,10 +1,10 @@
 [package]
 name = "flytrap"
 description = "Query the Fly.io runtime environment"
-version = "0.1.0"
+version = "0.2.0-beta.0"
 edition = "2021"
 license = "MIT"
-authors = ["Lyra Naeseth <lyra@lyra.codes>"]
+authors = ["Lyra Torben Naeseth <lyra@lyra.codes>"]
 homepage = "https://flytrap.fly.dev/"
 repository = "https://github.com/silverlyra/flytrap"
 categories = ["api-bindings", "config", "network-programming"]
@@ -17,12 +17,23 @@ resolver = "2"
 
 [features]
 binrw = ["dep:binrw"]
-default = ["detect", "dns", "environment", "http", "regions"]
+default = ["detect", "dns", "environment", "gossip", "http", "regions"]
 dns = ["dep:futures", "dep:hickory-resolver"]
 detect = ["dep:if-addrs"]
 environment = []
+gossip = [
+    "binrw",
+    "dep:arraydeque",
+    "dep:base64",
+    "dep:quinn",
+    "dep:rand",
+    "dep:rcgen",
+    "dep:rustls",
+    "dep:time",
+    "dep:tokio",
+]
 http = ["dep:headers", "dep:http"]
-nightly = ["futures?/unstable", "headers?/nightly"]
+nightly = ["futures?/unstable", "headers?/nightly", "rand?/nightly"]
 regions = [
     "dep:enum-map",
     "dep:geo-types",
@@ -42,7 +53,13 @@ system-resolver = [
     "hickory-resolver/system-config",
 ]
 
+[[example]]
+name = "placement"
+required-features = ["environment"]
+
 [dependencies]
+arraydeque = { version = "0.5.1", default-features = false, optional = true }
+base64 = { version = "0.21.5", optional = true }
 binrw = { version = "0.13.3", optional = true }
 enum-map = { version = "^2.7", optional = true }
 futures = { version = "0.3.29", default-features = false, optional = true, features = [
@@ -57,11 +74,25 @@ http = { version = "^1.0", optional = true }
 if-addrs = { version = "^0.10", optional = true }
 lazy_static = { version = "^1.4", optional = true }
 noisy_float = { version = "^0.2", optional = true }
+quinn = { version = "0.10", default-features = false, features = [
+    "tls-rustls",
+    "runtime-tokio",
+], optional = true }
+rand = { version = "0.8.5", optional = true }
+rcgen = { version = "0.11.3", optional = true, features = ["x509-parser"] }
+rustls = { version = "0.21", default-features = false, features = [
+    "quic",
+], optional = true }
 serde = { version = "^1.0", optional = true }
 thiserror = { version = "^1.0" }
-
-[dev-dependencies]
-tokio = { version = "1.34.0", features = ["full"] }
+time = { version = "0.3.30", optional = true }
+tokio = { version = "1.34", default-features = false, optional = true, features = [
+    "macros",
+    "rt",
+    "sync",
+    "time",
+    "net",
+] }
 
 [package.metadata.docs.rs]
 all-features = true

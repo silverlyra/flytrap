@@ -52,7 +52,7 @@ The [`Placement`][placement] type gives access to Fly.io runtime
 [environment variables][env-vars] like `$FLY_PUBLIC_IP` and `$FLY_REGION`.
 
 ```rust
-use flytrap::{Placement, Machine}
+use flytrap::{Placement, Machine};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let runtime = Placement::current()?;
