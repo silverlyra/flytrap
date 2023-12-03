@@ -16,6 +16,7 @@ members = ["demo"]
 resolver = "2"
 
 [features]
+binrw = ["dep:binrw"]
 default = ["detect", "dns", "environment", "http", "regions"]
 dns = ["dep:futures", "dep:hickory-resolver"]
 detect = ["dep:if-addrs"]
@@ -42,12 +43,13 @@ system-resolver = [
 ]
 
 [dependencies]
+binrw = { version = "0.13.3", optional = true }
 enum-map = { version = "^2.7", optional = true }
 futures = { version = "0.3.29", default-features = false, optional = true, features = [
     "std",
 ] }
 geo-types = { version = "^0.7", optional = true }
-headers = { version = "^0.3", optional = true }
+headers = { version = "^0.4", optional = true }
 hickory-resolver = { version = "^0.24", optional = true, default-features = false, features = [
     "tokio-runtime",
 ] }
