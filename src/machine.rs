@@ -70,17 +70,37 @@ impl Machine {
 #[derive(Hash, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
 #[cfg_attr(feature = "binrw", derive(binrw::BinRead, binrw::BinWrite))]
 #[repr(transparent)]
-pub struct MachineId(NonZeroU64);
+
+pub struct MachineId(pub(crate) NonZeroU64);
 
 impl MachineId {
+    /// [Parse][FromStr] a [`MachineId`] from its hexadecimal string
+    /// representation, as served by Fly.io.
+    ///
+    /// # Panics
+    ///
+    /// Panics with `invalid machine ID` if `u64::from_str_radix(id)` is not `Ok`.
     pub fn new(id: impl AsRef<str>) -> Self {
         id.as_ref().parse().expect("invalid machine ID")
+    }
+
+    pub(crate) const fn from_raw(value: u64) -> Option<Self> {
+        match NonZeroU64::new(value) {
+            Some(id) => Some(Self(id)),
+            _ => None,
+        }
+    }
+
+    pub(crate) const fn into_raw(self) -> u64 {
+        self.0.get()
     }
 }
 
 impl FromStr for MachineId {
     type Err = ParseIntError;
 
+    /// [Parse][FromStr] a [`MachineId`] from its hexadecimal string
+    /// representation, as served by Fly.io.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         u64::from_str_radix(s, 16).and_then(|id| match NonZeroU64::new(id) {
             Some(id) => Ok(Self(id)),

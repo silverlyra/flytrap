@@ -17,12 +17,20 @@ resolver = "2"
 
 [features]
 binrw = ["dep:binrw"]
-default = ["detect", "dns", "environment", "http", "regions"]
+default = ["detect", "dns", "environment", "http", "ping", "regions"]
 dns = ["dep:futures", "dep:hickory-resolver"]
 detect = ["dep:if-addrs"]
 environment = []
 http = ["dep:headers", "dep:http"]
 nightly = ["futures?/unstable", "headers?/nightly"]
+ping = [
+    "environment",
+    "dep:arraydeque",
+    "dep:bytes",
+    "dep:dashmap",
+    "dep:rand",
+    "dep:tokio",
+]
 regions = [
     "dep:enum-map",
     "dep:geo-types",
@@ -31,6 +39,7 @@ regions = [
 ]
 serde = [
     "dep:serde",
+    "bytes?/serde",
     "geo-types?/serde",
     "enum-map?/serde",
     "noisy_float?/serde",
@@ -43,7 +52,10 @@ system-resolver = [
 ]
 
 [dependencies]
+arraydeque = { version = "0.5.1", default-features = false, optional = true }
 binrw = { version = "0.13.3", optional = true }
+bytes = { version = "1.5.0", optional = true }
+dashmap = { version = "5.5.3", optional = true }
 enum-map = { version = "^2.7", optional = true }
 futures = { version = "0.3.29", default-features = false, optional = true, features = [
     "std",
@@ -57,10 +69,19 @@ http = { version = "^1.0", optional = true }
 if-addrs = { version = "^0.10", optional = true }
 lazy_static = { version = "^1.4", optional = true }
 noisy_float = { version = "^0.2", optional = true }
+rand = { version = "0.8.5", optional = true }
 serde = { version = "^1.0", optional = true }
 thiserror = { version = "^1.0" }
+tokio = { version = "1.34.0", default-features = false, features = [
+    "macros",
+    "net",
+    "rt",
+    "sync",
+    "time",
+], optional = true }
 
 [dev-dependencies]
+nu-pretty-hex = "0.87.1"
 tokio = { version = "1.34.0", features = ["full"] }
 
 [package.metadata.docs.rs]

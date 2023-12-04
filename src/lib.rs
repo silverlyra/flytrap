@@ -136,6 +136,9 @@ mod error;
 #[cfg_attr(docsrs, doc(cfg(feature = "http")))]
 pub mod http;
 mod machine;
+#[cfg(feature = "ping")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ping")))]
+pub mod ping;
 mod placement;
 #[cfg(feature = "regions")]
 mod region;

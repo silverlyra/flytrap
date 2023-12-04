@@ -362,8 +362,16 @@ impl RegionDetails<'static> {
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct City<'l> {
+    /// The name of the city (e.g., `"Bogotá"`).
     pub name: &'l str,
+
+    /// The [ISO 3166-1 alpha-2][] code for the country where the [city][City]
+    /// is located (e.g., `"CO"`).
+    ///
+    /// [ISO 3166-1 alpha-2]: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
     pub country: &'l str,
+
+    /// The longitude–latitude coordinates of the [city][City], in degrees.
     pub geo: Point<R32>,
 }
 

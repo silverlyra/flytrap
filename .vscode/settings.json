@@ -1,5 +1,20 @@
 {
-  "cSpell.words": ["addrs", "docsrs", "resolv", "serde", "thiserror"],
+  "cSpell.words": [
+    "addrs",
+    "arraydeque",
+    "askama",
+    "dashmap",
+    "deque",
+    "docsrs",
+    "nanos",
+    "oneshot",
+    "resolv",
+    "serde",
+    "subsec",
+    "thiserror",
+    "unsplit"
+  ],
   "rust-analyzer.linkedProjects": ["./Cargo.toml"],
-  "rust-analyzer.check.command": "clippy"
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.showUnlinkedFileNotification": false
 }

@@ -14,7 +14,7 @@ use crate::{error::Error, placement::private_address, AppResolver, Location, Reg
 /// Query the Fly.io [internal DNS][] records.
 ///
 /// [internal DNS]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Resolver(pub(crate) TokioAsyncResolver);
 
 impl Resolver {
