@@ -8,8 +8,7 @@ use axum::{extract::State, http::StatusCode, response::Html, routing::get, Json,
 use axum_extra::TypedHeader;
 use flytrap::{
     http::{FlyClientIp, FlyRegion},
-    ping::PeerStatus,
-    Placement, RegionDetails,
+    ping, Peer, Placement, RegionDetails,
 };
 use serde::Serialize;
 use tokio::{net::TcpListener, sync::oneshot};
@@ -23,7 +22,7 @@ pub async fn start(backend: Backend, listen: SocketAddr) {
     let app = Router::new()
         .route("/", get(index))
         .route("/ip", get(ip))
-        .route("/peers", get(peers))
+        .route("/status", get(status))
         .route("/up", get(up))
         .with_state(backend);
 
@@ -43,7 +42,7 @@ struct IndexResponse {
     placement: Placement,
     host: RegionDetails<'static>,
     edge: RegionDetails<'static>,
-    peers: Vec<PeerStatus>,
+    peers: Vec<ping::PeerStatus>,
 }
 
 async fn index(
@@ -79,14 +78,70 @@ async fn ip(
 
 #[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-struct PeersResponse {
+struct StatusResponse {
+    #[serde(flatten)]
+    placement: Placement,
+    region: RegionDetails<'static>,
     peers: Vec<PeerStatus>,
 }
 
-async fn peers(State(backend): State<Backend>) -> Result<Json<PeersResponse>, StatusCode> {
-    let peers = backend.status.read().await.clone();
+#[derive(Serialize, Clone, Debug)]
+struct PeerStatus {
+    #[serde(flatten)]
+    peer: Peer,
+    available: bool,
+    seen: Option<ping::Timestamp>,
+    replied: Option<ping::Timestamp>,
+    latency: Option<PeerLatency>,
+}
 
-    Ok(Json(PeersResponse { peers }))
+impl From<&ping::PeerStatus> for PeerStatus {
+    fn from(status: &ping::PeerStatus) -> Self {
+        Self {
+            peer: status.peer.clone(),
+            available: status.available,
+            seen: status.last_seen,
+            replied: status.last_replied,
+            latency: status.latency.map(PeerLatency::from),
+        }
+    }
+}
+
+#[derive(Serialize, Clone, Debug)]
+struct PeerLatency {
+    average: f32,
+    latest: f32,
+}
+
+impl From<ping::Latency> for PeerLatency {
+    fn from(lag: ping::Latency) -> Self {
+        Self {
+            average: (lag.average.as_secs_f64() * 1000.0) as f32,
+            latest: (lag.latest.as_secs_f64() * 1000.0) as f32,
+        }
+    }
+}
+
+async fn status(State(backend): State<Backend>) -> Result<Json<StatusResponse>, StatusCode> {
+    let placement = backend.placement.clone();
+    let region = placement
+        .region()
+        .ok_or(StatusCode::NOT_IMPLEMENTED)?
+        .details();
+
+    let peers = backend
+        .status
+        .read()
+        .await
+        .iter()
+        .map(PeerStatus::from)
+        .collect();
+
+    Ok(Json(StatusResponse {
+        placement,
+        region,
+        peers,
+    }))
 }
 
 async fn up(State(backend): State<Backend>) -> Result<Html<String>, StatusCode> {
