@@ -167,11 +167,16 @@ main > header > h2 {
   margin: 0.5ex 0;
 }
 
+#peer-list .peer-latency {
+  font-size: 0.9em;
+  margin: 0.2ex 0;
+}
+
 #peer-list .peer-ip {
   font-size: 0.6em;
 }
 
-#peer-list > figure.peer-self {
+#peer-list > figure.peer-available {
   background-color: #EBFFFF;
 }
 

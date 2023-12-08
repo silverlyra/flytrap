@@ -135,6 +135,10 @@ mod error;
 #[cfg(feature = "http")]
 #[cfg_attr(docsrs, doc(cfg(feature = "http")))]
 pub mod http;
+mod machine;
+#[cfg(feature = "ping")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ping")))]
+pub mod ping;
 mod placement;
 #[cfg(feature = "regions")]
 mod region;
@@ -145,7 +149,8 @@ mod resolver;
 #[cfg_attr(docsrs, doc(cfg(feature = "dns")))]
 pub use app::AppResolver;
 pub use error::Error;
-pub use placement::{hosted, private_address, Machine, Placement};
+pub use machine::{Machine, MachineId};
+pub use placement::{hosted, private_address, Placement};
 #[cfg(feature = "regions")]
 #[cfg_attr(docsrs, doc(cfg(feature = "regions")))]
 pub use region::{City, Location, Region, RegionCode, RegionDetails, RegionError};

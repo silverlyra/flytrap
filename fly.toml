@@ -25,3 +25,7 @@ interval = "15s"
 method = "GET"
 timeout = "5s"
 path = "/up"
+
+[metrics]
+port = 9091
+path = "/metrics"

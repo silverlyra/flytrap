@@ -18,3 +18,9 @@ impl From<crate::region::RegionError> for Error {
         Self::Parse
     }
 }
+
+impl From<std::env::VarError> for Error {
+    fn from(_value: std::env::VarError) -> Self {
+        Self::Unavailable
+    }
+}

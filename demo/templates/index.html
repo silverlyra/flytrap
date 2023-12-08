@@ -74,7 +74,7 @@
     <h3>{{ peers.len() }} active machines:</h3>
     <div id="peer-list">
       {% for peer in peers %}
-        <figure id="peer-{{ peer.id }}"{% if peer.id == placement.allocation %} class="peer-self"{% endif %}>
+        <figure id="peer-{{ peer.id }}"{% if peer.available %} class="peer-available"{% endif %}>
           <figcaption>{{ peer.id }}</figcaption>
           <span class="peer-region">
             {% match peer.region() %}
@@ -82,6 +82,14 @@
                 {{ region.city.name }}
               {% when None %}
                 {{ peer.location }}
+            {% endmatch %}
+          </span>
+          <span class="peer-latency">
+            {% match peer.latency %}
+              {% when Some with (latency) %}
+                {{ "{:.0}"|format(latency.average.as_secs_f64() * 1000.0) }}
+              {% when None %}
+                &mdash;
             {% endmatch %}
           </span>
           <code class="peer-ip">{{ peer.private_ip }}</code>

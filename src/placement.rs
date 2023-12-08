@@ -1,6 +1,9 @@
-use std::net::{IpAddr, Ipv6Addr};
+use std::{
+    env,
+    net::{IpAddr, Ipv6Addr},
+};
 
-use crate::{error::Error, Location, Region};
+use crate::{Error, Location, Machine, Region};
 
 /// Details how the current process is running in the Fly.io [runtime environment][].
 ///
@@ -63,13 +66,13 @@ impl Placement {
     #[cfg(feature = "environment")]
     #[cfg_attr(docsrs, doc(cfg(feature = "environment")))]
     pub fn current() -> Result<Self, Error> {
-        let app = var("FLY_APP_NAME")?;
-        let process_group = std::env::var("FLY_PROCESS_GROUP").ok();
+        let app = env::var("FLY_APP_NAME").map_err(Error::from)?;
+        let process_group = env::var("FLY_PROCESS_GROUP").ok();
         let public_ip = public_address();
         let private_ip = environment_address().ok_or(Error::Unavailable)?;
-        let allocation = var("FLY_ALLOC_ID")?;
+        let allocation = env::var("FLY_ALLOC_ID").map_err(Error::from)?;
         let machine = Machine::current().ok();
-        let region_code = var("FLY_REGION")?;
+        let region_code = env::var("FLY_REGION").map_err(Error::from)?;
 
         #[cfg(feature = "regions")]
         let location: Location = region_code.parse().expect("invalid $FLY_REGION");
@@ -99,62 +102,6 @@ impl Placement {
     }
 }
 
-/// Information about the [Fly.io Machine][machine] on which the current process
-/// is running.
-///
-/// [machine]: https://fly.io/docs/machines/
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Machine {
-    /// The unique ID of this Fly.io Machine ([`$FLY_MACHINE_ID`][def]).
-    ///
-    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_machine_id
-    #[doc(alias = "FLY_MACHINE_ID")]
-    pub id: String,
-
-    /// The name of the Docker image running this container on `registry.fly.io`
-    /// ([`$FLY_IMAGE_REF`][def]).
-    ///
-    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_image_ref
-    #[doc(alias = "FLY_IMAGE_REF")]
-    pub image: Option<String>,
-
-    /// The version assigned to a specific Fly.io Machine configuration
-    /// ([`$FLY_MACHINE_VERSION`][def]).
-    ///
-    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_machine_version
-    #[doc(alias = "FLY_MACHINE_VERSION")]
-    pub version: String,
-
-    /// The memory allocated to the Fly.io Machine, in MB
-    /// ([`$FLY_VM_MEMORY_MB`][def]).
-    ///
-    /// [def]: https://fly.io/docs/reference/runtime-environment/#fly_vm_memory_mb
-    #[doc(alias = "FLY_VM_MEMORY_MB")]
-    pub memory: Option<usize>,
-}
-
-impl Machine {
-    /// Populates a [`Machine`] based on `$FLY_` environment variables.
-    #[cfg(feature = "environment")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "environment")))]
-    pub fn current() -> Result<Self, Error> {
-        let id = var("FLY_MACHINE_ID")?;
-        let image = std::env::var("FLY_IMAGE_REF").ok();
-        let version = var("FLY_MACHINE_VERSION")?;
-        let memory = std::env::var("FLY_VM_MEMORY_MB")
-            .ok()
-            .and_then(|value| value.parse::<usize>().ok());
-
-        Ok(Self {
-            id,
-            image,
-            version,
-            memory,
-        })
-    }
-}
-
 /// Checks to see if the current process appears to be running in the Fly.io
 /// [runtime environment][], based on the presence of certain `$FLY_`
 /// environment variables.
@@ -163,8 +110,10 @@ impl Machine {
 #[cfg(feature = "environment")]
 #[cfg_attr(docsrs, doc(cfg(feature = "environment")))]
 pub fn hosted() -> bool {
-    use std::env::var;
-    matches!((var("FLY_APP_NAME"), var("FLY_PRIVATE_IP")), (Ok(_), Ok(_)))
+    matches!(
+        (env::var("FLY_APP_NAME"), env::var("FLY_PRIVATE_IP")),
+        (Ok(_), Ok(_))
+    )
 }
 
 /// Read the [`$FLY_PRIVATE_IP`][private-ip] [environment variable][std::env::var],
@@ -199,7 +148,7 @@ pub fn private_address() -> Option<Ipv6Addr> {
 #[cfg(feature = "environment")]
 #[cfg_attr(docsrs, doc(cfg(feature = "environment")))]
 pub fn public_address() -> Option<Ipv6Addr> {
-    std::env::var("FLY_PUBLIC_IP")
+    env::var("FLY_PUBLIC_IP")
         .ok()
         .and_then(|value| value.parse::<Ipv6Addr>().ok())
 }
@@ -208,7 +157,7 @@ pub fn public_address() -> Option<Ipv6Addr> {
 /// IPv6 address.
 #[cfg(feature = "environment")]
 fn environment_address() -> Option<Ipv6Addr> {
-    let ip = std::env::var("FLY_PRIVATE_IP").ok();
+    let ip = env::var("FLY_PRIVATE_IP").ok();
 
     match ip {
         Some(ip) if !ip.is_empty() => ip.parse::<Ipv6Addr>().ok(),
@@ -228,12 +177,4 @@ fn detect_address() -> Option<Ipv6Addr> {
             _ => None,
         })
         .next()
-}
-
-#[cfg(feature = "environment")]
-fn var(name: &'static str) -> Result<String, Error> {
-    match std::env::var(name) {
-        Ok(value) => Ok(value),
-        _ => Err(Error::Unavailable),
-    }
 }

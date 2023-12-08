@@ -134,7 +134,8 @@ the HTTP [request headers][] added by Fly.io edge proxies, like
 [client-ip]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
 
 ```rust
-use axum::{response::Html, TypedHeader};
+use axum::response::Html;
+use axum_extra::TypedHeader;
 use flytrap::http::{FlyClientIp, FlyRegion};
 
 async fn ip(
