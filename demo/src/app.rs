@@ -12,6 +12,7 @@ use flytrap::{
 };
 use serde::Serialize;
 use tokio::{net::TcpListener, sync::oneshot};
+use tracing::info;
 
 use super::backend::Backend;
 
@@ -29,7 +30,11 @@ pub async fn start(backend: Backend, listen: SocketAddr) {
     let listener = TcpListener::bind(listen)
         .await
         .expect("failed to listen for HTTP requests");
-    println!("listening on {listen}");
+    info!(
+        network.local.address = %listen.ip(),
+        network.local.port = listen.port(),
+        "Listening for HTTP requests"
+    );
 
     axum::serve(listener, app).await.unwrap();
     let _ = stop_tx.send(());

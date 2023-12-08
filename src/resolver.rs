@@ -6,8 +6,11 @@ use std::{
 
 use hickory_resolver::{
     config::{NameServerConfig, NameServerConfigGroup, ResolverConfig, ResolverOpts},
+    proto::rr::rdata::AAAA,
     IntoName, Name, TokioAsyncResolver,
 };
+#[cfg(feature = "tracing")]
+use tracing::{instrument, Level};
 
 use crate::{error::Error, placement::private_address, AppResolver, Location, Region};
 
@@ -117,6 +120,17 @@ impl Resolver {
             .collect()
     }
 
+    /// Perform an arbitrary `AAAA` record query on the `.internal` domain.
+    pub async fn ip(&self, name: impl IntoName) -> Result<Vec<Ipv6Addr>, Error> {
+        let query = name
+            .into_name()
+            .expect("invalid name")
+            .append_domain(&Name::from_ascii("internal").unwrap())
+            .expect("invalid query");
+
+        lookup_aaaa(&self.0, query).await
+    }
+
     /// Perform an arbitrary `TXT` record query on the `.internal` domain.
     pub async fn txt(&self, name: impl IntoName) -> Result<String, Error> {
         let query = name
@@ -157,6 +171,17 @@ impl From<TokioAsyncResolver> for Resolver {
     }
 }
 
+#[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, skip_all, fields(%query)))]
+pub(crate) async fn lookup_aaaa(
+    resolver: &TokioAsyncResolver,
+    query: Name,
+) -> Result<Vec<Ipv6Addr>, Error> {
+    let results = resolver.ipv6_lookup(query).await.map_err(Error::from)?;
+
+    Ok(results.into_iter().map(|AAAA(ip)| ip).collect())
+}
+
+#[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, skip_all, fields(%query)))]
 pub(crate) async fn lookup_txt(
     resolver: &TokioAsyncResolver,
     query: Name,
@@ -298,7 +323,7 @@ impl Deref for Peer {
 
 impl PartialEq for Peer {
     fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
+        self.id == other.id && self.private_ip == other.private_ip
     }
 }
 impl Eq for Peer {}
@@ -306,6 +331,7 @@ impl Eq for Peer {}
 impl std::hash::Hash for Peer {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.id.hash(state);
+        self.private_ip.hash(state);
     }
 }
 

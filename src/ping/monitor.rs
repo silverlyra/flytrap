@@ -8,7 +8,11 @@ use std::time::Duration;
 use arraydeque::{ArrayDeque, CapacityError};
 use bytes::BytesMut;
 use dashmap::{try_result::TryResult, DashMap};
+#[cfg(feature = "metrics")]
+use metrics::{counter, gauge, histogram};
 use tokio::{net::UdpSocket, select, spawn, sync::oneshot, task::JoinHandle, time::Instant};
+#[cfg(feature = "tracing")]
+use tracing::{instrument, Level};
 
 use crate::{Machine, MachineId, Peer, Placement, Resolver};
 
@@ -185,6 +189,7 @@ impl<const L: usize, const S: usize> Worker<L, S> {
         Ok(self.clock.elapsed())
     }
 
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, err(level = Level::WARN), skip_all, fields(network.peer.address = %addr)))]
     async fn receive(
         &mut self,
         data: &[u8],
@@ -206,6 +211,9 @@ impl<const L: usize, const S: usize> Worker<L, S> {
                 format!("received message for machine {}", message.to),
             ));
         }
+
+        #[cfg(feature = "metrics")]
+        counter!("flytrap_ping_receive_count", 1, "peer_instance" => message.from.to_string(), "message" => message.contents.message_type());
 
         match message.contents {
             Contents::Request(request) => {
@@ -236,6 +244,7 @@ impl<const L: usize, const S: usize> Worker<L, S> {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, skip_all, fields(network.peer.id = %id)))]
     async fn ping(&mut self, buf: &mut BytesMut, id: MachineId) -> io::Result<()> {
         let now = self.clock.now();
         let seq = self.seq.next();
@@ -275,6 +284,9 @@ impl<const L: usize, const S: usize> Worker<L, S> {
                 SocketAddrV6::new(address, self.config.port, 0, 0),
             )
             .await?;
+
+        #[cfg(feature = "metrics")]
+        counter!("flytrap_ping_send_count", 1, "peer_instance" => id.to_string());
 
         Ok(())
     }
@@ -410,6 +422,13 @@ impl<const L: usize, const S: usize> MonitoredPeer<L, S> {
 
             self.observations
                 .add(Observation::new(now, Status::Available(latency)));
+
+            #[cfg(feature = "metrics")]
+            {
+                let id = self.peer.id.clone();
+                counter!("flytrap_ping_count", 1, "result" => "ok", "peer_instance" => id.clone(), "peer_region" => self.peer.location);
+                histogram!("flytrap_ping_latency_seconds", latency, "peer_instance" => id, "peer_region" => self.peer.location);
+            }
         }
     }
 
@@ -417,6 +436,16 @@ impl<const L: usize, const S: usize> MonitoredPeer<L, S> {
         let available = self.seen.map(|seen| seen >= cutoff).unwrap_or_default();
         let last_replied = self.observations.reachable();
         let latency = self.observations.latency();
+
+        #[cfg(feature = "metrics")]
+        {
+            let id = self.peer.id.clone();
+            gauge!("flytrap_peer_available", if available { 1.0 } else { 0.0 }, "peer_instance" => id.clone(), "peer_region" => self.peer.location);
+
+            if let Some(ref latency) = latency {
+                gauge!("flytrap_peer_mean_latency_seconds", latency.average, "peer_instance" => id, "peer_region" => self.peer.location);
+            }
+        }
 
         PeerStatus {
             peer: self.peer.clone(),
@@ -436,6 +465,12 @@ impl<const L: usize, const S: usize> MonitoredPeer<L, S> {
             } else {
                 self.observations
                     .add(Observation::new(now, Status::Unavailable(now - sent.time)));
+
+                #[cfg(feature = "metrics")]
+                {
+                    let id = self.peer.id.clone();
+                    counter!("flytrap_ping_count", 1, "result" => "timeout", "peer_instance" => id, "peer_region" => self.peer.location);
+                }
 
                 false
             }

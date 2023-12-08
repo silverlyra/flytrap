@@ -8,6 +8,7 @@
     "docsrs",
     "nanos",
     "oneshot",
+    "rdata",
     "resolv",
     "serde",
     "subsec",

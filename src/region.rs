@@ -97,6 +97,16 @@ impl From<Location> for Option<Region> {
     }
 }
 
+#[cfg(feature = "metrics")]
+impl From<Location> for metrics::SharedString {
+    fn from(value: Location) -> Self {
+        match value {
+            Location::Region(region) => region.into(),
+            Location::Unknown(code) => metrics::SharedString::owned(code.to_string()),
+        }
+    }
+}
+
 /// A [Fly.io region][regions].
 ///
 /// Information about the region is available through the associated
@@ -317,6 +327,13 @@ impl FromStr for Region {
             "yyz" => Ok(Self::Toronto),
             _ => Err(RegionError::Unrecognized),
         }
+    }
+}
+
+#[cfg(feature = "metrics")]
+impl From<Region> for metrics::SharedString {
+    fn from(region: Region) -> Self {
+        metrics::SharedString::borrowed(region.code)
     }
 }
 

@@ -4,10 +4,12 @@ use futures::future::join_all;
 use hickory_resolver::{
     error::ResolveError, proto::rr::rdata::AAAA, IntoName, Name, TokioAsyncResolver,
 };
+#[cfg(feature = "tracing")]
+use tracing::{instrument, Level};
 
 use crate::{
     error::Error,
-    resolver::{lookup_txt, Resolver},
+    resolver::{lookup_aaaa, lookup_txt, Resolver},
     Node, Peer, Region,
 };
 
@@ -34,6 +36,7 @@ impl<'r> AppResolver<'r> {
     /// Find the Fly.io regions where this app is deployed.
     #[cfg(feature = "regions")]
     #[cfg_attr(docsrs, doc(cfg(feature = "regions")))]
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, err(level = Level::WARN), skip_all, fields(domain = %self.domain)))]
     pub async fn regions(&self) -> Result<Vec<Region>, Error> {
         let value = self.txt("regions").await?;
 
@@ -44,6 +47,7 @@ impl<'r> AppResolver<'r> {
     }
 
     /// Find all running instances of this Fly.io app.
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, err(level = Level::WARN), skip_all, fields(domain = %self.domain)))]
     pub async fn nodes(&self) -> Result<Vec<Node>, Error> {
         let value = self.txt("vms").await?;
 
@@ -52,6 +56,7 @@ impl<'r> AppResolver<'r> {
 
     /// Find all running [instances][AppResolver::nodes] of this Fly.io app, and
     /// resolve all their instance ID’s to private IP addresses.
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, err(level = Level::WARN), skip_all, fields(domain = %self.domain)))]
     pub async fn peers(&self) -> Result<Vec<Peer>, Error> {
         let nodes = self.nodes().await?;
 
@@ -84,6 +89,7 @@ impl<'r> AppResolver<'r> {
     }
 
     /// Find the geographically-nearest _n_ instances of this Fly.io app.
+    #[cfg_attr(feature = "tracing", instrument(level = Level::TRACE, err(level = Level::WARN), skip_all, fields(count = n, domain = %self.domain)))]
     pub async fn nearest_peer_addresses(&self, n: usize) -> Result<Vec<Ipv6Addr>, Error> {
         let top = Name::from_ascii(format!("top{n}"))
             .expect("invalid top n")
@@ -97,6 +103,17 @@ impl<'r> AppResolver<'r> {
         let results = self.resolver.ipv6_lookup(top).await.map_err(Error::from)?;
 
         Ok(results.into_iter().map(|r| r.0).collect())
+    }
+
+    /// Perform an arbitrary `AAAA` record query on the `<app>.internal` domain.
+    pub async fn ip(&self, name: impl IntoName) -> Result<Vec<Ipv6Addr>, Error> {
+        let query = name
+            .into_name()
+            .expect("invalid name")
+            .append_domain(&self.domain)
+            .expect("invalid app domain");
+
+        lookup_aaaa(self.resolver, query).await
     }
 
     /// Perform an arbitrary `TXT` record query on the `<app>.internal` domain.

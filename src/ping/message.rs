@@ -112,6 +112,14 @@ impl Contents {
             Contents::Reply(c) => c.write(data),
         }
     }
+
+    #[cfg(feature = "metrics")]
+    pub(super) fn message_type(&self) -> metrics::SharedString {
+        match self {
+            Contents::Request(_) => metrics::SharedString::const_str("ping"),
+            Contents::Reply(_) => metrics::SharedString::const_str("pong"),
+        }
+    }
 }
 
 impl From<Request> for Contents {
