@@ -1,9 +1,11 @@
+#[cfg(feature = "dns")]
 use hickory_resolver::error::ResolveError;
 
 /// An error in a [`Resolver`][crate::Resolver] operation.
 #[derive(thiserror::Error, Clone, Debug)]
 #[non_exhaustive]
 pub enum Error {
+    #[cfg(feature = "dns")]
     #[error(transparent)]
     Resolve(#[from] ResolveError),
     #[error("no Fly.io private networking detected")]
