@@ -64,9 +64,11 @@ impl Resolver {
         sources: impl IntoIterator<Item = SocketAddr>,
         local: Option<SocketAddr>,
     ) -> Self {
+        let mut opts = ResolverOpts::default();
+        opts.edns0 = true;
         Self(TokioAsyncResolver::tokio(
             Self::config(sources.into_iter(), local),
-            ResolverOpts::default(),
+            opts,
         ))
     }
 
