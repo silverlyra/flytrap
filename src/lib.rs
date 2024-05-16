@@ -8,11 +8,13 @@
 //!
 //! - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 //! - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
+//! - Query the Fly.io [machines API][]
 //! - Parse Fly.io [request headers][] like `Fly-Client-IP` (into an [`IpAddr`][std::net::IpAddr])
 //! - Turn Fly.io [region][regions] codes like `ord` into names like “Chicago” and lat/long coordinates
 //!
 //! [env-vars]: https://fly.io/docs/reference/runtime-environment/#environment-variables
 //! [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
+//! [machines API]: https://fly.io/docs/machines/api/
 //! [request headers]: https://fly.io/docs/reference/runtime-environment/#request-headers
 //! [regions]: https://fly.io/docs/reference/regions/
 //!
@@ -107,6 +109,31 @@
 //! }
 //! ```
 //!
+//! ### Machines API requests
+//!
+//! Create an [`api::Client`] to send requests to the [machines API][]
+//!
+#![cfg_attr(feature = "api", doc = "```no_run")]
+#![cfg_attr(not(feature = "api"), doc = "```ignore")]
+//! use std::env;
+//! use flytrap::api::Client;
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     let token = env::var("FLY_API_TOKEN")?;
+//!     let client = Client::new(token);
+//!
+//!     // Discover other instances of the currently-running app
+//!     let peers = client.peers().await?;
+//!
+//!     for peer in peers {
+//!         println!("peer {} in {} is {:?}", peer.name, peer.location, peer.state);
+//!     }
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
 //! ## Features
 //!
 //! Flytrap’s compilation can be controlled through a number of [Cargo features][].
@@ -129,6 +156,9 @@
 //! [if-addrs]: https://lib.rs/crates/if-addrs
 //! [serde]: https://serde.rs/
 
+#[cfg(feature = "api")]
+#[cfg_attr(docsrs, doc(cfg(feature = "api")))]
+pub mod api;
 #[cfg(feature = "dns")]
 mod app;
 mod error;

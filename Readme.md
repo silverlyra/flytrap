@@ -17,11 +17,13 @@ Flytrap is a Rust [crate][] for reading the [Fly.io][] runtime [environment][].
 
 - Read Fly.io [environment variables][env-vars] like `$FLY_PUBLIC_IP` into a `struct`
 - Query Fly.io [internal DNS][dns] addresses like `top3.nearest.of.<app>.internal`
+- Query the Fly.io [machines API][]
 - Parse Fly.io [request headers][] like [`Fly-Client-IP`][] (into an [`IpAddr`][ip])
 - Turn Fly.io [region][regions] codes like `ord` into names like ”Chicago” and lat/long coordinates
 
 [env-vars]: https://fly.io/docs/reference/runtime-environment/#environment-variables
 [dns]: https://fly.io/docs/reference/private-networking/#fly-internal-addresses
+[machines API]: https://fly.io/docs/machines/api/
 [request headers]: https://fly.io/docs/reference/runtime-environment/#request-headers
 [`Fly-Client-IP`]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
 [ip]: https://doc.rust-lang.org/std/net/enum.IpAddr.html
@@ -166,6 +168,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 [resolver]: https://docs.rs/flytrap/latest/flytrap/struct.Resolver.html
+
+### Machines API requests
+
+Create an [`api::Client`][API client] to send requests to the [machines API][].
+
+> [!NOTE]  
+> The `api` module is not built by default; the `api` [feature][Cargo features] must be enabled first.
+
+```rust
+use std::env;
+use flytrap::api::Client;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let token = env::var("FLY_API_TOKEN")?;
+    let client = Client::new(token);
+
+    // Discover other instances of the currently-running app
+    let peers = client.peers().await?;
+
+    for peer in peers {
+        println!("peer {} in {} is {:?}", peer.name, peer.location, peer.state);
+    }
+
+    Ok(())
+}
+```
+
+[API client]: https://docs.rs/flytrap/latest/flytrap/api/struct.Client.html
 
 ## Features
 

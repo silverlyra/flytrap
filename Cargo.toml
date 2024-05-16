@@ -17,6 +17,7 @@ resolver = "2"
 
 [features]
 default = ["detect", "dns", "environment", "http", "regions"]
+api = ["serde", "dep:reqwest"]
 dns = ["dep:futures", "dep:hickory-resolver"]
 detect = ["dep:if-addrs"]
 environment = []
@@ -55,11 +56,16 @@ http = { version = "^1.0", optional = true }
 if-addrs = { version = "^0.12", optional = true }
 lazy_static = { version = "^1.4", optional = true }
 noisy_float = { version = "^0.2", optional = true }
+reqwest = { version = "^0.12", optional = true, features = ["json"] }
 serde = { version = "^1.0", optional = true }
 thiserror = { version = "^1.0" }
 
 [dev-dependencies]
 tokio = { version = "1.34.0", features = ["full"] }
+
+[[example]]
+name = "api"
+required-features = ["api", "environment"]
 
 [package.metadata.docs.rs]
 all-features = true
