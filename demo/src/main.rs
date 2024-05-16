@@ -1,14 +1,14 @@
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 
 use askama::Template;
-use axum::{
-    extract::State, http::StatusCode, response::Html, routing::get, Json, Router, TypedHeader,
-};
+use axum::{extract::State, http::StatusCode, response::Html, routing::get, Json, Router};
+use axum_extra::TypedHeader;
 use flytrap::{
     http::{FlyClientIp, FlyRegion},
     Error, Peer, Placement, RegionDetails, Resolver,
 };
 use serde::Serialize;
+use tokio::net::TcpListener;
 
 #[derive(Template, Clone, Debug)]
 #[template(path = "index.html")]
@@ -33,13 +33,12 @@ async fn main() {
         .with_state(resolver);
 
     let listen = listen_address();
-    println!("Listening on {listen}");
-
-    // run it with hyper on localhost:3000
-    axum::Server::bind(&listen)
-        .serve(app.into_make_service())
+    let listener = TcpListener::bind(&listen)
         .await
-        .unwrap();
+        .expect("failed to listen for requests");
+
+    println!("Listening on {listen}");
+    axum::serve(listener, app).await.unwrap();
 }
 
 async fn index(

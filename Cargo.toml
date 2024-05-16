@@ -1,7 +1,7 @@
 [package]
 name = "flytrap"
 description = "Query the Fly.io runtime environment"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 authors = ["Lyra Naeseth <lyra@lyra.codes>"]
@@ -47,12 +47,12 @@ futures = { version = "0.3.29", default-features = false, optional = true, featu
     "std",
 ] }
 geo-types = { version = "^0.7", optional = true }
-headers = { version = "^0.3", optional = true }
+headers = { version = "^0.4", optional = true }
 hickory-resolver = { version = "^0.24", optional = true, default-features = false, features = [
     "tokio-runtime",
 ] }
 http = { version = "^1.0", optional = true }
-if-addrs = { version = "^0.10", optional = true }
+if-addrs = { version = "^0.12", optional = true }
 lazy_static = { version = "^1.4", optional = true }
 noisy_float = { version = "^0.2", optional = true }
 serde = { version = "^1.0", optional = true }

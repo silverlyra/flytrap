@@ -12,8 +12,9 @@ readme = "Readme.md"
 
 [dependencies]
 askama = { version = "0.12.1", features = ["serde", "serde-json", "with-axum"] }
-askama_axum = { version = "0.3.0", features = ["serde-json"] }
-axum = { version = "0.6.20", features = ["headers"] }
+askama_axum = { version = "0.4.0", features = ["serde-json"] }
+axum = { version = "0.7.5" }
+axum-extra = { version = "0.9.3", features = ["typed-header"] }
 flytrap = { path = "../", features = ["serde"] }
 serde = { version = "1.0.192", features = ["derive"] }
 tokio = { version = "1.34.0", features = ["full"] }
