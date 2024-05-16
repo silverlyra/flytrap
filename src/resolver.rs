@@ -214,6 +214,7 @@ pub(crate) async fn lookup_txt(
 #[derive(PartialOrd, Ord, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Node {
+    #[cfg_attr(feature = "serde", serde(rename = "region"))]
     pub location: Location,
     pub id: String,
 }
