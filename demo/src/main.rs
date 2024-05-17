@@ -43,8 +43,8 @@ async fn main() {
 
 async fn index(
     State(resolver): State<Resolver>,
-    TypedHeader(ip): TypedHeader<FlyClientIp>,
-    TypedHeader(edge): TypedHeader<FlyRegion>,
+    TypedHeader(FlyClientIp(ip)): TypedHeader<FlyClientIp>,
+    TypedHeader(FlyRegion(edge)): TypedHeader<FlyRegion>,
 ) -> Result<IndexResponse, StatusCode> {
     let placement = Placement::current().map_err(error)?;
     let host_region = placement.region().ok_or(StatusCode::NOT_IMPLEMENTED)?;
@@ -55,7 +55,7 @@ async fn index(
     peers.sort();
 
     Ok(IndexResponse {
-        client: ip.into_inner(),
+        client: ip,
         placement,
         host: host_region.details(),
         edge: edge_region.details(),

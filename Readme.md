@@ -126,27 +126,6 @@ will be stored as a [`RegionCode`][region-code].
 [region]: https://docs.rs/flytrap/latest/flytrap/enum.Region.html
 [region-code]: https://docs.rs/flytrap/latest/flytrap/struct.RegionCode.html
 
-### HTTP headers
-
-The [`http`][http] module contains typed [`Header`][headers] implementations of
-the HTTP [request headers][] added by Fly.io edge proxies, like
-[`Fly-Client-IP`][client-ip].
-
-[http]: https://docs.rs/flytrap/latest/flytrap/http/index.html
-[client-ip]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
-
-```rust
-use axum::{response::Html, TypedHeader};
-use flytrap::http::{FlyClientIp, FlyRegion};
-
-async fn ip(
-    TypedHeader(ip): TypedHeader<FlyClientIp>,
-    TypedHeader(edge): TypedHeader<FlyRegion>,
-) -> Html<String> {
-    Html(format!("Your IP: <code>{ip}</code> (via {edge})"))
-}
-```
-
 ### DNS queries
 
 Create a [`Resolver`][resolver] in order to query the Fly.io [`.internal` DNS zone][dns].
@@ -197,6 +176,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 [API client]: https://docs.rs/flytrap/latest/flytrap/api/struct.Client.html
+
+### HTTP headers
+
+The [`http`][http] module contains typed [`Header`][headers] implementations of
+the HTTP [request headers][] added by Fly.io edge proxies, like
+[`Fly-Client-IP`][client-ip].
+
+[http]: https://docs.rs/flytrap/latest/flytrap/http/index.html
+[client-ip]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
+
+```rust
+use axum::response::Html;
+use axum_extra::TypedHeader;
+use flytrap::http::{FlyClientIp, FlyRegion};
+
+async fn ip(
+    TypedHeader(ip): TypedHeader<FlyClientIp>,
+    TypedHeader(edge): TypedHeader<FlyRegion>,
+) -> Html<String> {
+    Html(format!("Your IP: <code>{ip}</code> (via {edge})"))
+}
+```
 
 ## Features
 

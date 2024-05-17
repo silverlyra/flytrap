@@ -1,5 +1,18 @@
 //! [Header] types for `Fly-` edge proxy request headers, like
 //! [`Fly-Client-IP`][FlyClientIp].
+//!
+//! ```ignore
+//! use axum::response::Html;
+//! use axum_extra::TypedHeader;
+//! use flytrap::http::{FlyClientIp, FlyRegion};
+//!
+//! async fn ip(
+//!     TypedHeader(FlyClientIp(ip)): TypedHeader<FlyClientIp>,
+//!     TypedHeader(FlyRegion(edge)): TypedHeader<FlyRegion>,
+//! ) -> Html<String> {
+//!     Html(format!("Your IP: <code>{ip}</code> (via {edge})"))
+//! }
+//! ```
 
 use std::{fmt, net::IpAddr};
 

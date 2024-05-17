@@ -134,6 +134,15 @@
 //! }
 //! ```
 //!
+//! ### HTTP headers
+//!
+//! The [`http`][http] module contains typed [`Header`][headers] implementations of
+//! the HTTP [request headers][] added by Fly.io edge proxies, like
+//! [`Fly-Client-IP`][client-ip].
+//!
+//! [http]: https://docs.rs/flytrap/latest/flytrap/http/index.html
+//! [client-ip]: https://docs.rs/flytrap/latest/flytrap/http/struct.FlyClientIp.html
+//!
 //! ## Features
 //!
 //! Flytrap’s compilation can be controlled through a number of [Cargo features][].
