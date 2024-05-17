@@ -140,6 +140,7 @@
 //!
 //! [Cargo features]: https://doc.rust-lang.org/cargo/reference/features.html
 //!
+//! - **`api`**: Enable the [client][`api`] for the Fly.io [machines API][]
 //! - **`dns`**: Enable [`Resolver`] for querying Fly.io [internal DNS][dns], via [`hickory-dns`][hickory] ⭐
 //! - **`detect`**: Enable automatic [`Resolver`] setup for Wireguard VPN clients, via [`if-addrs`][if-addrs] ⭐️
 //! - **`environment`**: Enable code which reads Fly.io environment variables like `$FLY_PUBLIC_IP` ⭐️
