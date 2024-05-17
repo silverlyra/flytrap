@@ -2,9 +2,12 @@
 use hickory_resolver::error::ResolveError;
 
 /// An error in a [`Resolver`][crate::Resolver] operation.
-#[derive(thiserror::Error, Clone, Debug)]
+#[derive(thiserror::Error, Debug)]
 #[non_exhaustive]
 pub enum Error {
+    #[cfg(feature = "api")]
+    #[error(transparent)]
+    Api(#[from] reqwest::Error),
     #[cfg(feature = "dns")]
     #[error(transparent)]
     Resolve(#[from] ResolveError),
