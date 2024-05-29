@@ -240,6 +240,11 @@ impl Region {
         DETAILS[*self]
     }
 
+    /// Iterate over all known [regions][Region].
+    pub fn all() -> impl Iterator<Item = (Region, RegionDetails<'static>)> {
+        DETAILS.iter().map(|(r, d)| (r, *d))
+    }
+
     fn key(&self) -> RegionKey<'_> {
         (self.city.geo.x(), self.city.geo.y(), &self.code)
     }
@@ -330,7 +335,7 @@ impl FromStr for Region {
 /// assert_eq!(city.name, "Atlanta");
 /// assert_eq!(name, "Atlanta, Georgia (US)");
 /// ```
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct RegionDetails<'l> {
     pub code: &'l str,
@@ -359,7 +364,7 @@ impl RegionDetails<'static> {
 }
 
 /// Describes a city where a Fly.io [region][Region] is hosted.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct City<'l> {
     pub name: &'l str,
@@ -596,5 +601,11 @@ mod test {
             ],
             regions
         );
+    }
+
+    #[test]
+    fn all() {
+        assert!(Region::all().count() >= 30);
+        assert!(Region::all().all(|(r, d)| r.details() == d));
     }
 }
