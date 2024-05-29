@@ -1,0 +1,48 @@
+name: Check for new regions
+
+on:
+  pull_request:
+    paths: src/region.rs
+  workflow_dispatch:
+  schedule:
+    - cron: >-
+        15 15 * * *
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Get current regions
+        run: >
+          curl 'https://app.fly.io/graphql' -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{"query":"{\n  platform {\n    regions {\n      code\n      name\n    }\n  }\n}"}'
+          | jq '.data.platform.regions'
+          > "${RUNNER_TEMP}/regions.current.json"
+      - uses: actions/checkout@v4
+      - uses: moonrepo/setup-rust@v1
+      - name: Get defined regions
+        run: >-
+          cargo run --example regions | awk '{print $1}' | sort
+          > "${RUNNER_TEMP}/regions.defined.txt"
+      - name: Compare
+        uses: silverlyra/script-action@v0.2
+        with:
+          script: |
+            const read = (filename) => fs.readFile(path.join(env.RUNNER_TEMP, filename), 'utf-8');
+            const current = JSON.parse(await read('regions.current.json'));
+            const defined = new Set((await read('regions.defined.txt')).split('\n').filter(Boolean));
+            const absent = new Set();
+
+            for (const { code, name } of current) {
+              console.log(`${code}\t${name}`);
+
+              if (!defined.has(code)) {
+                absent.add(code);
+                console.log(`  not defined in Flytrap`);
+              }
+            }
+
+            if (absent.size > 0) process.exit(1);
